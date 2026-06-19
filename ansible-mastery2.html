@@ -1,0 +1,3036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ansible Mastery — Basics to Advanced</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --red: #E5311D;
+    --red-light: #FF5C3A;
+    --red-pale: #FFF0EE;
+    --navy: #1A1F35;
+    --navy-mid: #2D3452;
+    --slate: #4A5568;
+    --muted: #718096;
+    --border: #E2E8F0;
+    --bg: #FFFFFF;
+    --bg-soft: #F8F9FC;
+    --bg-code: #F4F6F9;
+    --green: #1A8A5A;
+    --green-pale: #EEFAF4;
+    --amber: #B45309;
+    --amber-pale: #FFFBEB;
+    --blue: #1E56A0;
+    --blue-pale: #EEF4FF;
+    --purple: #6B21A8;
+    --purple-pale: #F5F0FF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--navy);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  /* HEADER */
+  .site-header {
+    background: var(--navy);
+    color: white;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(26,31,53,0.15);
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--red);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800; color: white;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .logo-text { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+  .logo-sub { font-size: 12px; color: #A0AEC0; font-weight: 400; margin-top: 1px; }
+
+  .header-tabs {
+    display: flex; gap: 4px;
+  }
+  .htab {
+    background: none; border: none; color: #A0AEC0;
+    padding: 8px 14px; border-radius: 6px; cursor: pointer;
+    font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+  }
+  .htab:hover { background: rgba(255,255,255,0.08); color: white; }
+  .htab.active { background: var(--red); color: white; }
+
+  .progress-bar-wrap {
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px; height: 4px; width: 140px;
+  }
+  .progress-bar-fill {
+    height: 4px; background: var(--red); border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+  .progress-label { font-size: 11px; color: #A0AEC0; margin-bottom: 4px; }
+
+  /* LAYOUT */
+  .app-layout {
+    display: flex;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: calc(100vh - 65px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 280px;
+    min-width: 280px;
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 65px;
+    height: calc(100vh - 65px);
+    overflow-y: auto;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .sidebar-section { margin-bottom: 8px; }
+  .sidebar-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+    color: var(--muted); text-transform: uppercase;
+    padding: 6px 20px 4px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 20px; cursor: pointer;
+    font-size: 13.5px; color: var(--slate);
+    transition: all 0.15s; border-left: 3px solid transparent;
+    font-weight: 400;
+  }
+  .sidebar-item:hover { background: var(--bg-soft); color: var(--navy); }
+  .sidebar-item.active {
+    background: var(--red-pale); color: var(--red);
+    border-left-color: var(--red); font-weight: 600;
+  }
+  .sidebar-item.done { color: var(--green); }
+  .sidebar-item.done::after { content: '✓'; margin-left: auto; font-size: 12px; }
+  .sidebar-badge {
+    font-size: 10px; font-weight: 600; padding: 1px 6px;
+    border-radius: 10px; margin-left: auto;
+  }
+  .badge-basic { background: var(--blue-pale); color: var(--blue); }
+  .badge-inter { background: var(--amber-pale); color: var(--amber); }
+  .badge-adv { background: var(--red-pale); color: var(--red); }
+  .badge-scenario { background: var(--green-pale); color: var(--green); }
+
+  /* MAIN */
+  .main-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 36px 48px;
+  }
+  .main-content::-webkit-scrollbar { width: 6px; }
+  .main-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* SECTIONS (tabs) */
+  .tab-section { display: none; }
+  .tab-section.active { display: block; }
+
+  /* LESSON CARD */
+  .lesson-header {
+    margin-bottom: 32px;
+  }
+  .lesson-eyebrow {
+    font-size: 12px; font-weight: 600; color: var(--red);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+  }
+  .lesson-title {
+    font-size: 28px; font-weight: 800; color: var(--navy);
+    letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 12px;
+  }
+  .lesson-desc { color: var(--slate); font-size: 15px; max-width: 700px; }
+
+  /* CONTENT BLOCKS */
+  .content-card {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+  }
+  .content-card h3 {
+    font-size: 16px; font-weight: 700; color: var(--navy);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .content-card h3 .icon {
+    width: 26px; height: 26px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .icon-blue { background: var(--blue-pale); }
+  .icon-red { background: var(--red-pale); }
+  .icon-green { background: var(--green-pale); }
+  .icon-amber { background: var(--amber-pale); }
+  .icon-purple { background: var(--purple-pale); }
+
+  .content-card p { color: var(--slate); margin-bottom: 10px; font-size: 14.5px; }
+  .content-card p:last-child { margin-bottom: 0; }
+  .content-card ul, .content-card ol { color: var(--slate); padding-left: 20px; }
+  .content-card li { margin-bottom: 6px; font-size: 14.5px; }
+
+  /* CODE */
+  pre, code {
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .code-block {
+    background: var(--navy);
+    color: #E2E8F0;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.7;
+    position: relative;
+  }
+  .code-block .code-label {
+    font-size: 10px; letter-spacing: 1px; font-weight: 600;
+    color: #718096; text-transform: uppercase; margin-bottom: 10px;
+    display: block;
+  }
+  .code-block .k { color: #F687B3; } /* keyword */
+  .code-block .s { color: #9AE6B4; } /* string */
+  .code-block .c { color: #718096; } /* comment */
+  .code-block .n { color: #90CDF4; } /* name */
+  .code-block .v { color: #FBD38D; } /* variable */
+  .code-block .m { color: #B794F4; } /* module */
+  .code-block .t { color: #FC8181; } /* task */
+
+  /* INFO BOXES */
+  .info-box {
+    border-radius: 10px; padding: 16px 20px; margin: 16px 0;
+    display: flex; gap: 14px; align-items: flex-start;
+    font-size: 14px;
+  }
+  .info-box .ib-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .info-box .ib-body strong { display: block; margin-bottom: 4px; font-size: 13.5px; }
+  .info-box .ib-body { color: var(--slate); }
+  .info-tip { background: var(--blue-pale); border-left: 4px solid var(--blue); }
+  .info-warn { background: var(--amber-pale); border-left: 4px solid var(--amber); }
+  .info-success { background: var(--green-pale); border-left: 4px solid var(--green); }
+  .info-note { background: var(--purple-pale); border-left: 4px solid var(--purple); }
+
+  /* TABLE */
+  .data-table {
+    width: 100%; border-collapse: collapse; font-size: 13.5px;
+    margin: 16px 0;
+  }
+  .data-table th {
+    background: var(--navy); color: white;
+    padding: 10px 14px; text-align: left; font-weight: 600;
+    font-size: 12px; letter-spacing: 0.3px;
+  }
+  .data-table th:first-child { border-radius: 8px 0 0 0; }
+  .data-table th:last-child { border-radius: 0 8px 0 0; }
+  .data-table td {
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    color: var(--slate); vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:nth-child(even) td { background: var(--bg-soft); }
+  .data-table code {
+    background: var(--bg-code); padding: 2px 6px; border-radius: 4px;
+    font-size: 12px; color: var(--red);
+  }
+
+  /* SCENARIO CARD */
+  .scenario-card {
+    border: 2px solid var(--border);
+    border-radius: 14px; overflow: hidden; margin-bottom: 28px;
+  }
+  .scenario-header {
+    background: var(--navy); color: white;
+    padding: 18px 24px; display: flex; align-items: center; gap: 14px;
+  }
+  .scenario-num {
+    background: var(--red); color: white;
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .scenario-meta { flex: 1; }
+  .scenario-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .scenario-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .stag {
+    font-size: 11px; font-weight: 600; padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .stag-infra { background: rgba(30,86,160,0.3); color: #90CDF4; }
+  .stag-security { background: rgba(229,49,29,0.3); color: #FC8181; }
+  .stag-ci { background: rgba(107,33,168,0.3); color: #D6BCFA; }
+  .stag-aws { background: rgba(180,83,9,0.3); color: #FBD38D; }
+  .stag-db { background: rgba(26,138,90,0.3); color: #9AE6B4; }
+  .scenario-body { padding: 24px; }
+  .scenario-body .problem {
+    background: var(--amber-pale); border-left: 4px solid var(--amber);
+    padding: 12px 16px; border-radius: 0 8px 8px 0;
+    font-size: 14px; color: var(--amber); margin-bottom: 18px;
+  }
+  .scenario-body .problem strong { display: block; margin-bottom: 4px; }
+  .scenario-section-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--muted); margin: 18px 0 8px;
+  }
+
+  /* QUIZ */
+  .quiz-container { max-width: 700px; }
+  .quiz-q {
+    background: var(--bg-soft); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; margin-bottom: 20px;
+  }
+  .quiz-q .q-num { font-size: 11px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .quiz-q .q-text { font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 18px; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-opt {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-radius: 8px; cursor: pointer;
+    border: 2px solid var(--border); background: white;
+    transition: all 0.2s; font-size: 14px; color: var(--slate);
+    font-family: 'Inter', sans-serif;
+  }
+  .quiz-opt:hover { border-color: var(--red); color: var(--navy); }
+  .quiz-opt.correct { border-color: var(--green); background: var(--green-pale); color: var(--green); }
+  .quiz-opt.wrong { border-color: var(--red); background: var(--red-pale); color: var(--red); }
+  .quiz-opt .opt-letter {
+    width: 26px; height: 26px; border-radius: 6px;
+    background: var(--bg-soft); display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px; flex-shrink: 0;
+  }
+  .quiz-result {
+    padding: 14px 18px; border-radius: 8px; margin-top: 14px;
+    font-size: 14px; display: none;
+  }
+  .quiz-result.show { display: block; }
+  .result-correct { background: var(--green-pale); color: var(--green); border-left: 4px solid var(--green); }
+  .result-wrong { background: var(--red-pale); color: var(--red); border-left: 4px solid var(--red); }
+
+  /* NAV BUTTONS */
+  .lesson-nav {
+    display: flex; gap: 12px; margin-top: 36px; padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .btn {
+    padding: 11px 22px; border-radius: 8px; cursor: pointer;
+    font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif;
+    transition: all 0.2s; border: none;
+  }
+  .btn-primary { background: var(--red); color: white; }
+  .btn-primary:hover { background: var(--red-light); }
+  .btn-outline { background: white; color: var(--navy); border: 2px solid var(--border); }
+  .btn-outline:hover { border-color: var(--red); color: var(--red); }
+
+  /* REFERENCE */
+  .ref-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px; margin-top: 24px;
+  }
+  .ref-card {
+    border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+  }
+  .ref-card-header {
+    background: var(--navy); color: white; padding: 14px 18px;
+    font-size: 14px; font-weight: 700;
+  }
+  .ref-card-body { padding: 16px; }
+  .ref-item {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+  }
+  .ref-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .ref-item .ri-name { font-family: 'JetBrains Mono', monospace; color: var(--red); font-weight: 500; font-size: 12px; }
+  .ref-item .ri-desc { color: var(--muted); font-size: 12.5px; text-align: right; max-width: 55%; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    border-radius: 16px; padding: 40px 48px; margin-bottom: 36px;
+    color: white; position: relative; overflow: hidden;
+  }
+  .hero::after {
+    content: '⚙'; position: absolute; right: 40px; top: 50%; transform: translateY(-50%);
+    font-size: 120px; opacity: 0.06; line-height: 1;
+  }
+  .hero h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 12px; }
+  .hero p { color: #CBD5E0; font-size: 16px; max-width: 600px; margin-bottom: 24px; }
+  .hero-stats {
+    display: flex; gap: 32px;
+  }
+  .hero-stat .hs-num { font-size: 28px; font-weight: 800; color: var(--red-light); font-family: 'JetBrains Mono', monospace; }
+  .hero-stat .hs-label { font-size: 12px; color: #A0AEC0; margin-top: 2px; }
+
+  /* GRID */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media(max-width:900px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* CHIP ROW */
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .chip {
+    padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    background: var(--bg-soft); color: var(--slate); border: 1px solid var(--border);
+  }
+  .chip.red { background: var(--red-pale); color: var(--red); border-color: transparent; }
+  .chip.blue { background: var(--blue-pale); color: var(--blue); border-color: transparent; }
+  .chip.green { background: var(--green-pale); color: var(--green); border-color: transparent; }
+
+  /* STEP LIST */
+  .step-list { counter-reset: steps; }
+  .step-item {
+    display: flex; gap: 16px; margin-bottom: 20px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--navy); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+  }
+  .step-content { flex: 1; }
+  .step-content strong { display: block; font-size: 14.5px; color: var(--navy); margin-bottom: 4px; }
+  .step-content p { font-size: 13.5px; color: var(--slate); }
+
+  /* SCENARIO list in sidebar */
+  .scenario-mini { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">A</div>
+      <div>
+        <div class="logo-text">Ansible Mastery</div>
+        <div class="logo-sub">Basics → Advanced · 25 Real-World Scenarios</div>
+      </div>
+    </div>
+    <div class="header-tabs">
+      <button class="htab active" id="htab-learn" onclick="switchTab('learn')">📚 Learn</button>
+      <button class="htab" id="htab-scenarios" onclick="switchTab('scenarios')">🔬 Scenarios</button>
+      <button class="htab" id="htab-quiz" onclick="switchTab('quiz')">🧠 Quiz</button>
+      <button class="htab" id="htab-reference" onclick="switchTab('reference')">📖 Reference</button>
+    </div>
+    <div>
+      <div class="progress-label" id="progress-label">0 / 10 lessons</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="app-layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <!-- LEARN lessons -->
+  <div id="sidebar-learn">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Foundation</div>
+      <div class="sidebar-item active" onclick="showLesson(0)" id="sitem-0">
+        🏗 What is Ansible?
+        <span class="sidebar-badge badge-basic">Basic</span>
+      </div>
+      <div class="sidebar-item" onclick="showLesson(1)" id="sitem-1">
+        ⚙️ Installation & Setup
+        <span class="sidebar-badge badge-basic">Basic</span>
+      </div>
+      <div class="sidebar-item" onclick="showLesson(2)" id="sitem-2">
+        📋 Inventory Management
+        <span class="sidebar-badge badge-basic">Basic</span>
+      </div>
+      <div class="sidebar-item" onclick="showLesson(3)" id="sitem-3">
+        🎯 Ad-Hoc Commands
+        <span class="sidebar-badge badge-basic">Basic</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Core Concepts</div>
+      <div class="sidebar-item" onclick="showLesson(4)" id="sitem-4">
+        📝 Playbooks Deep Dive
+        <span class="sidebar-badge badge-inter">Inter</span>
+      </div>
+      <div class="sidebar-item" onclick="showLesson(5)" id="sitem-5">
+        🔧 Modules & Tasks
+        <span class="sidebar-badge badge-inter">Inter</span>
+      </div>
+      <div class="sidebar-item" onclick="showLesson(6)" id="sitem-6">
+        📦 Roles & Structure
+        <span class="sidebar-badge badge-inter">Inter</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Advanced</div>
+      <div class="sidebar-item" onclick="showLesson(7)" id="sitem-7">
+        🔐 Vault & Secrets
+        <span class="sidebar-badge badge-adv">Adv</span>
+      </div>
+      <div class="sidebar-item" onclick="showLesson(8)" id="sitem-8">
+        🔄 Dynamic Inventory & AWX
+        <span class="sidebar-badge badge-adv">Adv</span>
+      </div>
+      <div class="sidebar-item" onclick="showLesson(9)" id="sitem-9">
+        🚀 CI/CD & Production Patterns
+        <span class="sidebar-badge badge-adv">Adv</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENARIOS sidebar -->
+  <div id="sidebar-scenarios" style="display:none">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Infrastructure</div>
+      <div class="sidebar-item" onclick="showScenario(0)">S01 · Web Server Provisioning</div>
+      <div class="sidebar-item" onclick="showScenario(1)">S02 · Load Balancer Setup</div>
+      <div class="sidebar-item" onclick="showScenario(2)">S03 · MySQL DB Cluster</div>
+      <div class="sidebar-item" onclick="showScenario(3)">S04 · NFS Shared Storage</div>
+      <div class="sidebar-item" onclick="showScenario(4)">S05 · Docker Host Fleet</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Security</div>
+      <div class="sidebar-item" onclick="showScenario(5)">S06 · CIS Hardening</div>
+      <div class="sidebar-item" onclick="showScenario(6)">S07 · SSL Cert Rotation</div>
+      <div class="sidebar-item" onclick="showScenario(7)">S08 · Firewall Rules</div>
+      <div class="sidebar-item" onclick="showScenario(8)">S09 · SSH Key Management</div>
+      <div class="sidebar-item" onclick="showScenario(9)">S10 · User & Sudoers</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Cloud / AWS</div>
+      <div class="sidebar-item" onclick="showScenario(10)">S11 · EC2 Provisioning</div>
+      <div class="sidebar-item" onclick="showScenario(11)">S12 · S3 Bucket Policy</div>
+      <div class="sidebar-item" onclick="showScenario(12)">S13 · RDS Snapshot</div>
+      <div class="sidebar-item" onclick="showScenario(13)">S14 · ELB Health Checks</div>
+      <div class="sidebar-item" onclick="showScenario(14)">S15 · VPC Security Groups</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">CI/CD & Patching</div>
+      <div class="sidebar-item" onclick="showScenario(15)">S16 · Zero-Downtime Deploy</div>
+      <div class="sidebar-item" onclick="showScenario(16)">S17 · Rolling OS Patches</div>
+      <div class="sidebar-item" onclick="showScenario(17)">S18 · App Config Drift</div>
+      <div class="sidebar-item" onclick="showScenario(18)">S19 · Jenkins Pipeline</div>
+      <div class="sidebar-item" onclick="showScenario(19)">S20 · GitLab CI + Ansible</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Database / Monitoring</div>
+      <div class="sidebar-item" onclick="showScenario(20)">S21 · SQL Server Backup</div>
+      <div class="sidebar-item" onclick="showScenario(21)">S22 · Monitoring Stack</div>
+      <div class="sidebar-item" onclick="showScenario(22)">S23 · Log Rotation</div>
+      <div class="sidebar-item" onclick="showScenario(23)">S24 · Compliance Report</div>
+      <div class="sidebar-item" onclick="showScenario(24)">S25 · Multi-Env Promotion</div>
+    </div>
+  </div>
+
+  <!-- QUIZ sidebar -->
+  <div id="sidebar-quiz" style="display:none">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Quiz Topics</div>
+      <div class="sidebar-item active">🎯 Mixed (All Topics)</div>
+    </div>
+    <div style="padding:16px 20px;">
+      <div id="quiz-score-display" style="background:var(--bg-soft);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;">
+        <div style="font-size:28px;font-weight:800;color:var(--red);font-family:'JetBrains Mono',monospace;" id="quiz-score">0/0</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">Questions Answered</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFERENCE sidebar -->
+  <div id="sidebar-ref" style="display:none">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Sections</div>
+      <div class="sidebar-item">📦 Core Modules</div>
+      <div class="sidebar-item">☁️ Cloud Modules</div>
+      <div class="sidebar-item">🔐 Vault Commands</div>
+      <div class="sidebar-item">🛠 ansible-playbook flags</div>
+      <div class="sidebar-item">📄 Jinja2 Filters</div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+  <!-- ========== LEARN TAB ========== -->
+  <div id="tab-learn" class="tab-section active">
+
+    <!-- HERO (shown on lesson 0) -->
+    <div class="hero" id="hero-block">
+      <h1>Master Ansible Automation</h1>
+      <p>From your first ping to enterprise-grade CI/CD pipelines — learn Ansible the way the job market demands it. Every lesson built around real production scenarios.</p>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hs-num">10</div><div class="hs-label">Lessons</div></div>
+        <div class="hero-stat"><div class="hs-num">25</div><div class="hs-label">Scenarios</div></div>
+        <div class="hero-stat"><div class="hs-num">30+</div><div class="hs-label">Code Samples</div></div>
+        <div class="hero-stat"><div class="hs-num">50+</div><div class="hs-label">Quiz Questions</div></div>
+      </div>
+    </div>
+
+    <!-- LESSON CONTENT AREA -->
+    <div id="lesson-area"></div>
+  </div>
+
+  <!-- ========== SCENARIOS TAB ========== -->
+  <div id="tab-scenarios" class="tab-section">
+    <div class="lesson-header">
+      <div class="lesson-eyebrow">Hands-On Practice</div>
+      <div class="lesson-title">25 Real-World Ansible Scenarios</div>
+      <div class="lesson-desc">Every scenario reflects a task you'll face in a real job. Study the problem, understand the playbook structure, and learn the production tips.</div>
+    </div>
+    <div id="scenario-area"></div>
+  </div>
+
+  <!-- ========== QUIZ TAB ========== -->
+  <div id="tab-quiz" class="tab-section">
+    <div class="lesson-header">
+      <div class="lesson-eyebrow">Test Your Knowledge</div>
+      <div class="lesson-title">Ansible Certification Quiz</div>
+      <div class="lesson-desc">50 scenario-based questions covering EX294 / Red Hat Ansible exam topics and common interview questions at FAANG, banks, and cloud companies.</div>
+    </div>
+    <div class="quiz-container" id="quiz-area"></div>
+  </div>
+
+  <!-- ========== REFERENCE TAB ========== -->
+  <div id="tab-reference" class="tab-section">
+    <div class="lesson-header">
+      <div class="lesson-eyebrow">Quick Reference</div>
+      <div class="lesson-title">Ansible Command & Module Reference</div>
+      <div class="lesson-desc">The cheat sheet you keep open at work. Every important module, flag, filter, and vault command in one place.</div>
+    </div>
+    <div id="reference-area"></div>
+  </div>
+
+</main>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const lessons = [
+  {
+    id: 0,
+    eyebrow: "Lesson 1 · Foundation",
+    title: "What is Ansible & Why It Dominates the Job Market",
+    desc: "Understand the core architecture, agentless model, and why 80%+ of DevOps job postings mention Ansible.",
+    content: `
+      <div class="content-card">
+        <h3><span class="icon icon-blue">🏗</span> What Ansible Actually Is</h3>
+        <p>Ansible is an <strong>open-source IT automation engine</strong> written in Python, owned by Red Hat (IBM). It automates provisioning, configuration management, application deployment, and orchestration.</p>
+        <p>Unlike Puppet or Chef, Ansible is <strong>agentless</strong> — it uses SSH (Linux) or WinRM (Windows) to communicate. No agent software on target machines. This is why enterprises love it.</p>
+        <div class="info-box info-tip">
+          <div class="ib-icon">💡</div>
+          <div class="ib-body"><strong>Job Market Fact</strong> Ansible is listed in over 78% of DevOps/SRE job postings on LinkedIn. Red Hat's EX294 exam (RHCE) is one of the most valued certifications for Linux/DevOps engineers.</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="content-card">
+          <h3><span class="icon icon-green">✅</span> Key Advantages</h3>
+          <ul>
+            <li><strong>Agentless</strong> — SSH only, no daemon</li>
+            <li><strong>YAML-based</strong> — human-readable playbooks</li>
+            <li><strong>Idempotent</strong> — safe to run multiple times</li>
+            <li><strong>8,000+ modules</strong> in Ansible Galaxy</li>
+            <li><strong>AWX/AAP</strong> — enterprise GUI + RBAC</li>
+            <li>Native AWS, Azure, GCP cloud modules</li>
+          </ul>
+        </div>
+        <div class="content-card">
+          <h3><span class="icon icon-amber">⚖️</span> Ansible vs Competitors</h3>
+          <table class="data-table">
+            <tr><th>Tool</th><th>Model</th><th>Language</th></tr>
+            <tr><td>Ansible</td><td>Agentless</td><td>YAML</td></tr>
+            <tr><td>Puppet</td><td>Agent</td><td>DSL</td></tr>
+            <tr><td>Chef</td><td>Agent</td><td>Ruby</td></tr>
+            <tr><td>Terraform</td><td>Agentless</td><td>HCL</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-red">🏛</span> Ansible Architecture</h3>
+        <div class="code-block">
+          <span class="code-label">Ansible Architecture Overview</span>
+<span class="c">┌─────────────────────────────────────┐</span>
+<span class="c">│         Control Node (you)          │</span>
+<span class="c">│  ┌──────────┐  ┌────────────────┐   │</span>
+<span class="c">│  │Inventory │  │  Playbooks     │   │</span>
+<span class="c">│  │ (hosts)  │  │  (YAML tasks)  │   │</span>
+<span class="c">│  └──────────┘  └────────────────┘   │</span>
+<span class="c">│         ansible / ansible-playbook  │</span>
+<span class="c">└──────────────┬──────────────────────┘</span>
+               <span class="c">│  SSH / WinRM</span>
+    <span class="c">┌──────────┴──────────────────┐</span>
+    <span class="k">▼</span>             <span class="k">▼</span>             <span class="k">▼</span>
+<span class="s">web01</span>         <span class="s">db01</span>         <span class="s">app01</span>
+<span class="c">(Managed Nodes — no agent needed)</span>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-purple">🧩</span> Core Components at a Glance</h3>
+        <table class="data-table">
+          <tr><th>Component</th><th>Purpose</th><th>File/Location</th></tr>
+          <tr><td><code>Inventory</code></td><td>List of managed hosts</td><td><code>/etc/ansible/hosts</code></td></tr>
+          <tr><td><code>Playbook</code></td><td>Automation instructions</td><td><code>*.yml</code></td></tr>
+          <tr><td><code>Role</code></td><td>Reusable task collection</td><td><code>roles/rolename/</code></td></tr>
+          <tr><td><code>Module</code></td><td>Single unit of work</td><td>Built-in or Galaxy</td></tr>
+          <tr><td><code>Vault</code></td><td>Encrypted secrets</td><td><code>vault.yml</code></td></tr>
+          <tr><td><code>ansible.cfg</code></td><td>Configuration file</td><td>project root</td></tr>
+        </table>
+      </div>
+    `
+  },
+  {
+    id: 1,
+    eyebrow: "Lesson 2 · Foundation",
+    title: "Installation, Configuration & Your First Command",
+    desc: "Get Ansible installed, configure SSH, set up ansible.cfg, and run your very first playbook in under 10 minutes.",
+    content: `
+      <div class="content-card">
+        <h3><span class="icon icon-blue">⚙️</span> Installation Methods</h3>
+        <div class="code-block">
+          <span class="code-label">RHEL / CentOS / Rocky</span>
+<span class="c"># Install EPEL then Ansible</span>
+<span class="k">sudo</span> dnf install -y epel-release
+<span class="k">sudo</span> dnf install -y ansible-core
+
+<span class="c"># Verify</span>
+ansible --version
+<span class="c"># ansible [core 2.16.x]</span>
+        </div>
+        <div class="code-block">
+          <span class="code-label">Ubuntu / Debian</span>
+<span class="k">sudo</span> apt update
+<span class="k">sudo</span> apt install -y software-properties-common
+<span class="k">sudo</span> add-apt-repository --yes --update ppa:ansible/ansible
+<span class="k">sudo</span> apt install -y ansible
+        </div>
+        <div class="code-block">
+          <span class="code-label">pip (any OS)</span>
+pip3 install ansible
+<span class="c"># For AWS modules</span>
+pip3 install boto3 botocore
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-green">📁</span> ansible.cfg — The Control Tower</h3>
+        <p>Ansible looks for <code>ansible.cfg</code> in this order: current directory → <code>~/.ansible.cfg</code> → <code>/etc/ansible/ansible.cfg</code>.</p>
+        <div class="code-block">
+          <span class="code-label">ansible.cfg (recommended project-level config)</span>
+[defaults]
+<span class="n">inventory</span>       = ./inventory/hosts.ini
+<span class="n">remote_user</span>     = ec2-user
+<span class="n">private_key_file</span> = ~/.ssh/ansible_key.pem
+<span class="n">host_key_checking</span> = False
+<span class="n">forks</span>           = <span class="v">20</span>
+<span class="n">timeout</span>         = <span class="v">30</span>
+<span class="n">log_path</span>        = /var/log/ansible.log
+<span class="n">stdout_callback</span>  = yaml
+
+[privilege_escalation]
+<span class="n">become</span>          = <span class="v">True</span>
+<span class="n">become_method</span>   = sudo
+<span class="n">become_user</span>     = root
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-red">🔑</span> SSH Key Setup (Production Pattern)</h3>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <strong>Generate SSH key pair on control node</strong>
+              <p>ssh-keygen -t ed25519 -C "ansible-control" -f ~/.ssh/ansible_key</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <strong>Copy public key to all managed nodes</strong>
+              <p>ssh-copy-id -i ~/.ssh/ansible_key.pub ec2-user@10.0.0.101</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <strong>Test connectivity</strong>
+              <p>ansible all -m ping  →  pong from every host = success</p>
+            </div>
+          </div>
+        </div>
+        <div class="info-box info-warn">
+          <div class="ib-icon">⚠️</div>
+          <div class="ib-body"><strong>Interview Trap</strong> Interviewers ask: "What's the difference between <code>ansible_user</code> and <code>remote_user</code>?" — <code>ansible_user</code> is inventory-level, overrides <code>remote_user</code> in <code>ansible.cfg</code>.</div>
+        </div>
+      </div>
+    `
+  },
+  {
+    id: 2,
+    eyebrow: "Lesson 3 · Foundation",
+    title: "Inventory Management — Static & Dynamic",
+    desc: "Static INI/YAML inventories, host groups, variables, and dynamic inventory for AWS, Azure, and auto-scaling environments.",
+    content: `
+      <div class="content-card">
+        <h3><span class="icon icon-blue">📋</span> Static Inventory (INI Format)</h3>
+        <div class="code-block">
+          <span class="code-label">inventory/hosts.ini</span>
+<span class="c"># Ungrouped hosts</span>
+<span class="s">172.16.1.10</span>
+
+<span class="c">[webservers]</span>
+<span class="s">web01.prod.com</span>  ansible_user=ec2-user
+<span class="s">web02.prod.com</span>  ansible_user=ec2-user
+<span class="s">web03.prod.com</span>  ansible_user=ec2-user
+
+<span class="c">[dbservers]</span>
+<span class="s">db01.prod.com</span>   ansible_port=2222
+<span class="s">db02.prod.com</span>
+
+<span class="c">[loadbalancers]</span>
+<span class="s">lb01.prod.com</span>
+
+<span class="c"># Group of groups</span>
+[<span class="n">production:children</span>]
+webservers
+dbservers
+loadbalancers
+
+<span class="c">[production:vars]</span>
+<span class="n">env</span>=<span class="v">prod</span>
+<span class="n">ntp_server</span>=<span class="v">169.254.169.123</span>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-green">📦</span> YAML Inventory (Preferred for Complex Envs)</h3>
+        <div class="code-block">
+          <span class="code-label">inventory/hosts.yml</span>
+<span class="k">all:</span>
+  <span class="k">children:</span>
+    <span class="n">webservers:</span>
+      <span class="k">hosts:</span>
+        <span class="s">web01:</span>
+          <span class="n">ansible_host:</span> <span class="v">10.0.1.10</span>
+          <span class="n">http_port:</span> <span class="v">80</span>
+        <span class="s">web02:</span>
+          <span class="n">ansible_host:</span> <span class="v">10.0.1.11</span>
+    <span class="n">dbservers:</span>
+      <span class="k">vars:</span>
+        <span class="n">db_port:</span> <span class="v">3306</span>
+        <span class="n">backup_enabled:</span> <span class="v">true</span>
+      <span class="k">hosts:</span>
+        <span class="s">db01:</span>
+          <span class="n">ansible_host:</span> <span class="v">10.0.2.10</span>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-amber">☁️</span> Dynamic Inventory for AWS EC2</h3>
+        <p>Essential for auto-scaling environments where IPs change constantly. Uses the <code>aws_ec2</code> inventory plugin.</p>
+        <div class="code-block">
+          <span class="code-label">inventory/aws_ec2.yml</span>
+<span class="k">plugin:</span> <span class="s">amazon.aws.aws_ec2</span>
+<span class="k">regions:</span>
+  - <span class="v">us-east-1</span>
+  - <span class="v">us-west-2</span>
+
+<span class="k">filters:</span>
+  <span class="n">instance-state-name:</span> <span class="v">running</span>
+  <span class="n">tag:Environment:</span> <span class="v">production</span>
+
+<span class="k">keyed_groups:</span>
+  - <span class="n">key:</span> <span class="v">tags.Role</span>
+    <span class="n">prefix:</span> <span class="v">role</span>
+  - <span class="n">key:</span> <span class="v">placement.region</span>
+    <span class="n">prefix:</span> <span class="v">aws_region</span>
+
+<span class="k">hostnames:</span>
+  - <span class="v">ip-address</span>
+  - <span class="v">dns-name</span>
+
+<span class="k">compose:</span>
+  <span class="n">ansible_host:</span> <span class="v">public_ip_address</span>
+        </div>
+        <div class="code-block">
+          <span class="code-label">Test dynamic inventory</span>
+ansible-inventory -i inventory/aws_ec2.yml --list
+ansible-inventory -i inventory/aws_ec2.yml --graph
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-purple">📂</span> host_vars & group_vars Structure</h3>
+        <div class="code-block">
+          <span class="code-label">Directory Structure</span>
+inventory/
+├── hosts.ini
+├── group_vars/
+│   ├── all.yml          <span class="c"># vars for ALL hosts</span>
+│   ├── webservers.yml   <span class="c"># vars for webservers group</span>
+│   └── dbservers/
+│       ├── vars.yml
+│       └── vault.yml    <span class="c"># encrypted secrets</span>
+└── host_vars/
+    └── web01.yml        <span class="c"># vars for specific host</span>
+        </div>
+      </div>
+    `
+  },
+  {
+    id: 3,
+    eyebrow: "Lesson 4 · Foundation",
+    title: "Ad-Hoc Commands — Ansible's Power Tool",
+    desc: "Run one-liners to gather facts, restart services, copy files, and manage packages across thousands of hosts simultaneously.",
+    content: `
+      <div class="content-card">
+        <h3><span class="icon icon-blue">⚡</span> Ad-Hoc Syntax</h3>
+        <div class="code-block">
+          <span class="code-label">Pattern</span>
+ansible <span class="v">[hosts/group]</span> -m <span class="m">[module]</span> -a <span class="s">"[arguments]"</span> [options]
+        </div>
+        <div class="info-box info-tip">
+          <div class="ib-icon">💡</div>
+          <div class="ib-body"><strong>When to use ad-hoc vs playbook?</strong> Ad-hoc for quick one-off tasks (check disk space, restart a service). Playbooks for repeatable, documented automation that goes through version control.</div>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-green">🛠</span> Essential Ad-Hoc Commands</h3>
+        <div class="code-block">
+          <span class="code-label">Connectivity & Facts</span>
+<span class="c"># Test all hosts</span>
+ansible all -m ping
+
+<span class="c"># Gather all facts about a host</span>
+ansible web01 -m setup
+
+<span class="c"># Get specific fact</span>
+ansible all -m setup -a <span class="s">"filter=ansible_os_family"</span>
+
+<span class="c"># Run shell command</span>
+ansible webservers -m shell -a <span class="s">"df -h / | tail -1"</span>
+
+<span class="c"># Check uptime across fleet</span>
+ansible all -m command -a <span class="s">"uptime"</span>
+        </div>
+        <div class="code-block">
+          <span class="code-label">Package Management</span>
+<span class="c"># Install nginx on all webservers</span>
+ansible webservers -m yum -a <span class="s">"name=nginx state=present"</span> -b
+
+<span class="c"># Update all packages</span>
+ansible all -m yum -a <span class="s">"name=* state=latest"</span> -b
+
+<span class="c"># Remove a package</span>
+ansible dbservers -m apt -a <span class="s">"name=telnet state=absent"</span> -b
+        </div>
+        <div class="code-block">
+          <span class="code-label">Service Management</span>
+<span class="c"># Restart nginx</span>
+ansible webservers -m service -a <span class="s">"name=nginx state=restarted"</span> -b
+
+<span class="c"># Stop and disable a service</span>
+ansible all -m service -a <span class="s">"name=firewalld state=stopped enabled=false"</span> -b
+        </div>
+        <div class="code-block">
+          <span class="code-label">File Operations</span>
+<span class="c"># Copy file to all hosts</span>
+ansible all -m copy -a <span class="s">"src=/local/ntp.conf dest=/etc/ntp.conf owner=root mode=0644"</span> -b
+
+<span class="c"># Create directory</span>
+ansible all -m file -a <span class="s">"path=/opt/app state=directory mode=0755"</span> -b
+
+<span class="c"># Fetch file from remote</span>
+ansible db01 -m fetch -a <span class="s">"src=/etc/mysql/my.cnf dest=/backups/ flat=yes"</span>
+        </div>
+        <div class="code-block">
+          <span class="code-label">User Management</span>
+<span class="c"># Create user</span>
+ansible all -m user -a <span class="s">"name=deploy groups=wheel state=present"</span> -b
+
+<span class="c"># Set password (use vault in production!)</span>
+ansible all -m user -a <span class="s">"name=deploy password={{ 'Secret123' | password_hash('sha512') }}"</span> -b
+        </div>
+      </div>
+    `
+  },
+  {
+    id: 4,
+    eyebrow: "Lesson 5 · Core Concepts",
+    title: "Playbooks Deep Dive — Variables, Conditionals & Loops",
+    desc: "Write production-grade playbooks with variables, when conditions, loops, handlers, tags, and error handling.",
+    content: `
+      <div class="content-card">
+        <h3><span class="icon icon-blue">📝</span> Playbook Anatomy</h3>
+        <div class="code-block">
+          <span class="code-label">site.yml — Complete Production-Style Playbook</span>
+<span class="k">---</span>
+<span class="c"># Play 1: Configure Web Tier</span>
+- <span class="n">name:</span> <span class="s">Configure web servers</span>
+  <span class="n">hosts:</span> <span class="v">webservers</span>
+  <span class="n">become:</span> <span class="v">yes</span>
+  <span class="n">gather_facts:</span> <span class="v">yes</span>
+  <span class="n">serial:</span> <span class="v">2</span>              <span class="c"># rolling update: 2 at a time</span>
+  <span class="n">max_fail_percentage:</span> <span class="v">30</span>  <span class="c"># stop if >30% fail</span>
+
+  <span class="n">vars:</span>
+    <span class="n">app_port:</span> <span class="v">8080</span>
+    <span class="n">nginx_worker_processes:</span> <span class="v">"{{ ansible_processor_vcpus }}"</span>
+
+  <span class="n">vars_files:</span>
+    - vars/secrets.yml
+
+  <span class="k">pre_tasks:</span>
+    - <span class="n">name:</span> <span class="s">Check disk space</span>
+      <span class="m">command:</span> df -h
+      <span class="n">changed_when:</span> <span class="v">false</span>
+
+  <span class="k">tasks:</span>
+    - <span class="n">name:</span> <span class="s">Install nginx</span>
+      <span class="m">package:</span>
+        <span class="n">name:</span> nginx
+        <span class="n">state:</span> present
+      <span class="n">notify:</span> Restart nginx
+
+    - <span class="n">name:</span> <span class="s">Deploy nginx config</span>
+      <span class="m">template:</span>
+        <span class="n">src:</span> nginx.conf.j2
+        <span class="n">dest:</span> /etc/nginx/nginx.conf
+        <span class="n">validate:</span> <span class="s">"/usr/sbin/nginx -t -c %s"</span>
+      <span class="n">notify:</span> Reload nginx
+
+  <span class="k">handlers:</span>
+    - <span class="n">name:</span> Restart nginx
+      <span class="m">service:</span> <span class="n">name=nginx state=restarted</span>
+    - <span class="n">name:</span> Reload nginx
+      <span class="m">service:</span> <span class="n">name=nginx state=reloaded</span>
+
+  <span class="k">post_tasks:</span>
+    - <span class="n">name:</span> <span class="s">Verify nginx is running</span>
+      <span class="m">uri:</span>
+        <span class="n">url:</span> <span class="s">"http://localhost:{{ app_port }}/health"</span>
+        <span class="n">status_code:</span> <span class="v">200</span>
+      <span class="n">retries:</span> <span class="v">5</span>
+      <span class="n">delay:</span> <span class="v">3</span>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-amber">🔀</span> Conditionals & Loops</h3>
+        <div class="code-block">
+          <span class="code-label">when — Conditionals</span>
+<span class="c"># OS-specific task</span>
+- <span class="n">name:</span> <span class="s">Install on RHEL family</span>
+  <span class="m">yum:</span> <span class="n">name=httpd state=present</span>
+  <span class="k">when:</span> ansible_os_family == <span class="s">"RedHat"</span>
+
+<span class="c"># Multiple conditions</span>
+- <span class="n">name:</span> <span class="s">Run only in prod on weekends</span>
+  <span class="m">shell:</span> /opt/maintenance.sh
+  <span class="k">when:</span>
+    - env == <span class="s">"production"</span>
+    - ansible_date_time.weekday_number in [<span class="s">"6"</span>, <span class="s">"0"</span>]
+
+<span class="c"># Register + condition</span>
+- <span class="n">name:</span> <span class="s">Check if config exists</span>
+  <span class="m">stat:</span> <span class="n">path=/etc/myapp/config.yml</span>
+  <span class="n">register:</span> config_file
+
+- <span class="n">name:</span> <span class="s">Deploy config if missing</span>
+  <span class="m">template:</span>
+    <span class="n">src:</span> config.yml.j2
+    <span class="n">dest:</span> /etc/myapp/config.yml
+  <span class="k">when:</span> not config_file.stat.exists
+        </div>
+        <div class="code-block">
+          <span class="code-label">loop — Iteration</span>
+<span class="c"># Install multiple packages</span>
+- <span class="n">name:</span> <span class="s">Install required packages</span>
+  <span class="m">package:</span>
+    <span class="n">name:</span> <span class="s">"{{ item }}"</span>
+    <span class="n">state:</span> present
+  <span class="k">loop:</span>
+    - nginx
+    - git
+    - python3
+    - htop
+
+<span class="c"># Loop with dict</span>
+- <span class="n">name:</span> <span class="s">Create directories</span>
+  <span class="m">file:</span>
+    <span class="n">path:</span> <span class="s">"{{ item.path }}"</span>
+    <span class="n">owner:</span> <span class="s">"{{ item.owner }}"</span>
+    <span class="n">mode:</span> <span class="s">"{{ item.mode }}"</span>
+    <span class="n">state:</span> directory
+  <span class="k">loop:</span>
+    - { path: /opt/app, owner: deploy, mode: <span class="s">'0755'</span> }
+    - { path: /var/log/app, owner: deploy, mode: <span class="s">'0755'</span> }
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-red">🚨</span> Error Handling</h3>
+        <div class="code-block">
+          <span class="code-label">Error handling patterns</span>
+<span class="c"># Ignore errors and continue</span>
+- <span class="n">name:</span> <span class="s">Try to stop legacy service</span>
+  <span class="m">service:</span> <span class="n">name=legacy-app state=stopped</span>
+  <span class="n">ignore_errors:</span> <span class="v">yes</span>
+
+<span class="c"># Define what "changed" means</span>
+- <span class="n">name:</span> <span class="s">Run version check</span>
+  <span class="m">command:</span> myapp --version
+  <span class="n">changed_when:</span> <span class="v">false</span>
+  <span class="n">failed_when:</span> <span class="v">false</span>
+
+<span class="c"># Block / rescue / always (try-catch-finally)</span>
+- <span class="n">block:</span>
+    - <span class="n">name:</span> <span class="s">Deploy application</span>
+      <span class="m">command:</span> ./deploy.sh
+  <span class="n">rescue:</span>
+    - <span class="n">name:</span> <span class="s">Rollback on failure</span>
+      <span class="m">command:</span> ./rollback.sh
+  <span class="n">always:</span>
+    - <span class="n">name:</span> <span class="s">Send notification</span>
+      <span class="m">slack:</span>
+        <span class="n">token:</span> <span class="s">"{{ slack_token }}"</span>
+        <span class="n">msg:</span> <span class="s">"Deploy finished on {{ inventory_hostname }}"</span>
+        </div>
+      </div>
+    `
+  },
+  {
+    id: 5,
+    eyebrow: "Lesson 6 · Core Concepts",
+    title: "Modules & Tasks — The Building Blocks",
+    desc: "Master the 20 most important Ansible modules used in 90% of real-world playbooks.",
+    content: `
+      <div class="content-card">
+        <h3><span class="icon icon-blue">📦</span> Module Categories</h3>
+        <div class="chip-row">
+          <span class="chip red">Files</span><span class="chip red">Packages</span>
+          <span class="chip blue">Network</span><span class="chip blue">Cloud</span>
+          <span class="chip green">Database</span><span class="chip green">System</span>
+        </div>
+        <table class="data-table">
+          <tr><th>Module</th><th>Use Case</th><th>Key Args</th></tr>
+          <tr><td><code>copy</code></td><td>Copy files to managed nodes</td><td>src, dest, mode, owner</td></tr>
+          <tr><td><code>template</code></td><td>Jinja2 templated files</td><td>src, dest, validate</td></tr>
+          <tr><td><code>file</code></td><td>Manage files/dirs/links</td><td>path, state, mode</td></tr>
+          <tr><td><code>fetch</code></td><td>Pull files from remote</td><td>src, dest, flat</td></tr>
+          <tr><td><code>lineinfile</code></td><td>Manage single lines in files</td><td>path, line, regexp</td></tr>
+          <tr><td><code>blockinfile</code></td><td>Manage blocks of text</td><td>path, block, marker</td></tr>
+          <tr><td><code>package</code></td><td>Generic package management</td><td>name, state</td></tr>
+          <tr><td><code>service</code></td><td>Manage services</td><td>name, state, enabled</td></tr>
+          <tr><td><code>user</code></td><td>Manage user accounts</td><td>name, groups, state</td></tr>
+          <tr><td><code>cron</code></td><td>Schedule cron jobs</td><td>name, minute, job</td></tr>
+          <tr><td><code>command</code></td><td>Run commands (no shell)</td><td>argv, chdir</td></tr>
+          <tr><td><code>shell</code></td><td>Run shell commands</td><td>cmd, executable</td></tr>
+          <tr><td><code>uri</code></td><td>HTTP/REST API calls</td><td>url, method, status_code</td></tr>
+          <tr><td><code>mysql_db</code></td><td>Manage MySQL databases</td><td>name, state, login_*</td></tr>
+          <tr><td><code>ec2_instance</code></td><td>Manage AWS EC2</td><td>instance_type, image_id</td></tr>
+        </table>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-green">📄</span> Templates with Jinja2</h3>
+        <div class="code-block">
+          <span class="code-label">templates/nginx.conf.j2</span>
+<span class="c"># Generated by Ansible — do not edit manually</span>
+worker_processes <span class="v">{{ nginx_worker_processes | default(ansible_processor_vcpus) }}</span>;
+
+http {
+    upstream backend {
+        <span class="c">{%- for host in groups['appservers'] %}</span>
+        server <span class="v">{{ hostvars[host]['ansible_default_ipv4']['address'] }}</span>:8080;
+        <span class="c">{%- endfor %}</span>
+    }
+
+    server {
+        listen <span class="v">{{ nginx_port | default(80) }}</span>;
+        server_name <span class="v">{{ inventory_hostname }}</span>;
+
+        <span class="c">{% if ssl_enabled | default(false) %}</span>
+        listen 443 ssl;
+        ssl_certificate /etc/ssl/certs/<span class="v">{{ domain }}</span>.pem;
+        <span class="c">{% endif %}</span>
+
+        location / {
+            proxy_pass http://backend;
+        }
+    }
+}
+        </div>
+        <div class="info-box info-note">
+          <div class="ib-icon">🔖</div>
+          <div class="ib-body"><strong>Key Jinja2 Filters for Ansible</strong> <code>default(value)</code>, <code>upper</code>, <code>lower</code>, <code>join(',')</code>, <code>select('match', 'pattern')</code>, <code>to_json</code>, <code>from_json</code>, <code>b64encode</code>, <code>password_hash('sha512')</code></div>
+        </div>
+      </div>
+    `
+  },
+  {
+    id: 6,
+    eyebrow: "Lesson 7 · Core Concepts",
+    title: "Roles — Reusable, Shareable Automation",
+    desc: "Structure your automation with roles. Understand role directory layout, defaults vs vars, dependencies, and Ansible Galaxy.",
+    content: `
+      <div class="content-card">
+        <h3><span class="icon icon-blue">📦</span> Role Directory Structure</h3>
+        <div class="code-block">
+          <span class="code-label">roles/nginx/</span>
+roles/nginx/
+├── tasks/
+│   ├── main.yml       <span class="c"># entry point</span>
+│   ├── install.yml
+│   └── config.yml
+├── handlers/
+│   └── main.yml
+├── templates/
+│   └── nginx.conf.j2
+├── files/
+│   └── index.html
+├── vars/
+│   └── main.yml       <span class="c"># high-priority vars</span>
+├── defaults/
+│   └── main.yml       <span class="c"># low-priority (overridable)</span>
+├── meta/
+│   └── main.yml       <span class="c"># role metadata & dependencies</span>
+└── README.md
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="content-card">
+          <h3><span class="icon icon-green">⬇️</span> defaults/main.yml</h3>
+          <div class="code-block">
+            <span class="code-label">Overridable defaults</span>
+<span class="n">nginx_port:</span> <span class="v">80</span>
+<span class="n">nginx_worker_processes:</span> <span class="v">auto</span>
+<span class="n">nginx_keepalive_timeout:</span> <span class="v">65</span>
+<span class="n">ssl_enabled:</span> <span class="v">false</span>
+<span class="n">nginx_log_dir:</span> <span class="s">/var/log/nginx</span>
+          </div>
+        </div>
+        <div class="content-card">
+          <h3><span class="icon icon-red">🔒</span> vars/main.yml</h3>
+          <div class="code-block">
+            <span class="code-label">High-priority vars</span>
+<span class="n">nginx_config_path:</span> <span class="s">/etc/nginx</span>
+<span class="n">nginx_binary:</span> <span class="s">/usr/sbin/nginx</span>
+<span class="n">nginx_pid_file:</span> <span class="s">/run/nginx.pid</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-amber">🔗</span> Role Dependencies & Galaxy</h3>
+        <div class="code-block">
+          <span class="code-label">meta/main.yml</span>
+<span class="k">galaxy_info:</span>
+  <span class="n">role_name:</span> nginx
+  <span class="n">author:</span> yourname
+  <span class="n">platforms:</span>
+    - <span class="n">name:</span> EL
+      <span class="n">versions:</span> [8, 9]
+
+<span class="k">dependencies:</span>
+  - role: geerlingguy.java
+    <span class="n">vars:</span>
+      <span class="n">java_packages:</span> [java-17-openjdk]
+        </div>
+        <div class="code-block">
+          <span class="code-label">Using roles in site.yml</span>
+- <span class="n">hosts:</span> webservers
+  <span class="k">roles:</span>
+    - common           <span class="c"># simple role include</span>
+    - role: nginx
+      <span class="n">vars:</span>           <span class="c"># override defaults</span>
+        <span class="n">nginx_port:</span> <span class="v">8080</span>
+        <span class="n">ssl_enabled:</span> <span class="v">true</span>
+
+<span class="c"># Install from Galaxy</span>
+ansible-galaxy install geerlingguy.nginx
+ansible-galaxy install -r requirements.yml
+        </div>
+      </div>
+    `
+  },
+  {
+    id: 7,
+    eyebrow: "Lesson 8 · Advanced",
+    title: "Ansible Vault — Secrets & Encryption",
+    desc: "Encrypt passwords, API keys, SSL certificates, and database credentials. Multiple vault IDs for multi-environment setups.",
+    content: `
+      <div class="content-card">
+        <h3><span class="icon icon-red">🔐</span> Vault Fundamentals</h3>
+        <div class="code-block">
+          <span class="code-label">Core Vault Commands</span>
+<span class="c"># Create encrypted file</span>
+ansible-vault create group_vars/all/vault.yml
+
+<span class="c"># Encrypt existing file</span>
+ansible-vault encrypt vars/secrets.yml
+
+<span class="c"># Edit encrypted file</span>
+ansible-vault edit vars/secrets.yml
+
+<span class="c"># View without decrypting to disk</span>
+ansible-vault view vars/secrets.yml
+
+<span class="c"># Decrypt file</span>
+ansible-vault decrypt vars/secrets.yml
+
+<span class="c"># Encrypt a single string (inline)</span>
+ansible-vault encrypt_string 'SuperSecret123' --name 'db_password'
+
+<span class="c"># Re-key (change vault password)</span>
+ansible-vault rekey vars/secrets.yml
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-amber">🗂</span> Multi-Environment Vault IDs</h3>
+        <div class="code-block">
+          <span class="code-label">vault_pass_prod.txt & vault_pass_dev.txt</span>
+<span class="c"># Encrypt with label</span>
+ansible-vault encrypt --vault-id prod@vault_pass_prod.txt secrets_prod.yml
+ansible-vault encrypt --vault-id dev@vault_pass_dev.txt secrets_dev.yml
+
+<span class="c"># Run playbook with multiple vault IDs</span>
+ansible-playbook site.yml \
+  --vault-id prod@vault_pass_prod.txt \
+  --vault-id dev@vault_pass_dev.txt
+        </div>
+        <div class="code-block">
+          <span class="code-label">group_vars/all/vault.yml (encrypted content looks like)</span>
+$ANSIBLE_VAULT;1.2;AES256;prod
+63386530393363626636303735653430393962...
+        </div>
+        <div class="code-block">
+          <span class="code-label">group_vars/all/vars.yml (references vault vars)</span>
+<span class="c"># NEVER put secrets directly here — reference vault vars</span>
+<span class="n">db_password:</span> <span class="s">"{{ vault_db_password }}"</span>
+<span class="n">api_key:</span>     <span class="s">"{{ vault_api_key }}"</span>
+<span class="n">ssl_cert:</span>    <span class="s">"{{ vault_ssl_cert }}"</span>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-green">🔑</span> Running Playbooks with Vault</h3>
+        <div class="code-block">
+          <span class="code-label">Options for providing vault password</span>
+<span class="c"># Interactive prompt (dev)</span>
+ansible-playbook site.yml --ask-vault-pass
+
+<span class="c"># Password file (CI/CD)</span>
+ansible-playbook site.yml --vault-password-file ~/.vault_pass
+
+<span class="c"># Environment variable</span>
+export ANSIBLE_VAULT_PASSWORD_FILE=~/.vault_pass
+ansible-playbook site.yml
+
+<span class="c"># Vault password script (fetch from AWS Secrets Manager)</span>
+ansible-playbook site.yml --vault-password-file ./fetch_secret.py
+        </div>
+        <div class="info-box info-warn">
+          <div class="ib-icon">⚠️</div>
+          <div class="ib-body"><strong>Production Rule</strong> Never commit vault password files to Git. Use AWS Secrets Manager, HashiCorp Vault, or Ansible Controller (AAP) credential store. Add <code>*.vault_pass</code> and <code>vault_pass*.txt</code> to <code>.gitignore</code>.</div>
+        </div>
+      </div>
+    `
+  },
+  {
+    id: 8,
+    eyebrow: "Lesson 9 · Advanced",
+    title: "Dynamic Inventory, Ansible Tower / AWX & Callbacks",
+    desc: "Enterprise Ansible: AWX setup, job templates, RBAC, callback plugins, and custom dynamic inventory scripts.",
+    content: `
+      <div class="content-card">
+        <h3><span class="icon icon-blue">🏢</span> AWX / Ansible Automation Platform</h3>
+        <p>AWX is the open-source upstream of Red Hat's Ansible Automation Platform (AAP). It provides a web UI, REST API, RBAC, job scheduling, and audit logging for enterprise use.</p>
+        <table class="data-table">
+          <tr><th>Feature</th><th>CLI Ansible</th><th>AWX / AAP</th></tr>
+          <tr><td>GUI</td><td>❌</td><td>✅</td></tr>
+          <tr><td>RBAC</td><td>❌</td><td>✅ Teams/Orgs</td></tr>
+          <tr><td>Scheduling</td><td>cron only</td><td>✅ Built-in</td></tr>
+          <tr><td>Credential Mgmt</td><td>vault files</td><td>✅ Encrypted store</td></tr>
+          <tr><td>Audit Logging</td><td>log file</td><td>✅ Full history</td></tr>
+          <tr><td>REST API</td><td>❌</td><td>✅ All operations</td></tr>
+        </table>
+        <div class="code-block">
+          <span class="code-label">AWX via Docker Compose (quick start)</span>
+git clone https://github.com/ansible/awx.git
+cd awx/tools/docker-compose
+<span class="k">sudo</span> make docker-compose
+<span class="c"># Access http://localhost:8013  admin/password</span>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-green">☁️</span> Custom Dynamic Inventory Script</h3>
+        <div class="code-block">
+          <span class="code-label">inventory/aws_rds_inventory.py (SQL Server DBA use case!)</span>
+<span class="c">#!/usr/bin/env python3</span>
+<span class="k">import</span> boto3, json, sys
+
+<span class="k">def</span> <span class="n">get_rds_hosts</span>():
+    rds = boto3.client(<span class="s">'rds'</span>, region_name=<span class="s">'us-east-1'</span>)
+    instances = rds.describe_db_instances()
+    inventory = {<span class="s">"rds_sqlserver"</span>: {<span class="s">"hosts"</span>: []}, <span class="s">"_meta"</span>: {<span class="s">"hostvars"</span>: {}}}
+
+    <span class="k">for</span> db <span class="k">in</span> instances[<span class="s">'DBInstances'</span>]:
+        <span class="k">if</span> db[<span class="s">'Engine'</span>].startswith(<span class="s">'sqlserver'</span>):
+            host = db[<span class="s">'Endpoint'</span>][<span class="s">'Address'</span>]
+            inventory[<span class="s">"rds_sqlserver"</span>][<span class="s">"hosts"</span>].append(host)
+            inventory[<span class="s">"_meta"</span>][<span class="s">"hostvars"</span>][host] = {
+                <span class="s">"db_identifier"</span>: db[<span class="s">'DBInstanceIdentifier'</span>],
+                <span class="s">"db_class"</span>: db[<span class="s">'DBInstanceClass'</span>],
+                <span class="s">"engine_version"</span>: db[<span class="s">'EngineVersion'</span>]
+            }
+    <span class="k">return</span> inventory
+
+<span class="k">if</span> __name__ == <span class="s">'__main__'</span>:
+    print(json.dumps(get_rds_hosts(), indent=2))
+        </div>
+      </div>
+    `
+  },
+  {
+    id: 9,
+    eyebrow: "Lesson 10 · Advanced",
+    title: "CI/CD Pipelines, Production Patterns & Interview Guide",
+    desc: "Integrate Ansible with Jenkins/GitLab, implement blue-green deployments, and nail the top 20 Ansible interview questions.",
+    content: `
+      <div class="content-card">
+        <h3><span class="icon icon-blue">🚀</span> Jenkins + Ansible Pipeline</h3>
+        <div class="code-block">
+          <span class="code-label">Jenkinsfile</span>
+pipeline {
+    agent any
+    environment {
+        ANSIBLE_VAULT_PASS = credentials(<span class="s">'ansible-vault-prod'</span>)
+    }
+    stages {
+        stage(<span class="s">'Lint'</span>) {
+            steps {
+                sh <span class="s">'ansible-lint site.yml'</span>
+                sh <span class="s">'yamllint .'</span>
+            }
+        }
+        stage(<span class="s">'Syntax Check'</span>) {
+            steps {
+                sh <span class="s">'ansible-playbook site.yml --syntax-check'</span>
+            }
+        }
+        stage(<span class="s">'Dry Run (staging)'</span>) {
+            steps {
+                sh <span class="s">'''ansible-playbook site.yml \
+                   -i inventory/staging/ \
+                   --check --diff \
+                   --vault-password-file $ANSIBLE_VAULT_PASS'''</span>
+            }
+        }
+        stage(<span class="s">'Deploy to Prod'</span>) {
+            when { branch <span class="s">'main'</span> }
+            steps {
+                sh <span class="s">'''ansible-playbook site.yml \
+                   -i inventory/production/ \
+                   --vault-password-file $ANSIBLE_VAULT_PASS'''</span>
+            }
+        }
+    }
+}
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-red">🔥</span> Top 20 Ansible Interview Q&A</h3>
+        <table class="data-table">
+          <tr><th>#</th><th>Question</th><th>Key Answer</th></tr>
+          <tr><td>1</td><td>What is idempotency?</td><td>Running the same playbook multiple times produces the same result — no unintended changes</td></tr>
+          <tr><td>2</td><td>command vs shell module?</td><td>command doesn't use shell features (pipes, redirects). shell does. command is safer</td></tr>
+          <tr><td>3</td><td>What are magic variables?</td><td>hostvars, group_names, groups, inventory_hostname, ansible_facts</td></tr>
+          <tr><td>4</td><td>Variable precedence order?</td><td>role defaults → inventory vars → group_vars → host_vars → play vars → task vars → extra_vars (highest)</td></tr>
+          <tr><td>5</td><td>How to speed up Ansible?</td><td>forks, pipelining, fact caching (redis/jsonfile), mitogen strategy, gather_facts: no</td></tr>
+          <tr><td>6</td><td>What is a handler?</td><td>Task triggered by notify, runs once at end of play. Used for service restarts after config changes</td></tr>
+          <tr><td>7</td><td>Diff between copy and template?</td><td>copy transfers static files; template processes Jinja2 expressions and variables</td></tr>
+          <tr><td>8</td><td>What is --check mode?</td><td>Dry run — shows what WOULD change without making actual changes</td></tr>
+          <tr><td>9</td><td>How to run task on control node?</td><td>delegate_to: localhost</td></tr>
+          <tr><td>10</td><td>What is serial in a play?</td><td>Number/% of hosts to update at once for rolling updates</td></tr>
+        </table>
+      </div>
+
+      <div class="content-card">
+        <h3><span class="icon icon-green">⚡</span> Performance Tuning ansible.cfg</h3>
+        <div class="code-block">
+          <span class="code-label">ansible.cfg — Production Performance Settings</span>
+[defaults]
+<span class="n">forks</span>               = <span class="v">50</span>
+<span class="n">gathering</span>           = <span class="v">smart</span>
+<span class="n">fact_caching</span>        = <span class="v">redis</span>
+<span class="n">fact_caching_timeout</span> = <span class="v">3600</span>
+<span class="n">fact_caching_connection</span> = <span class="v">localhost:6379:0</span>
+
+[ssh_connection]
+<span class="n">pipelining</span>          = <span class="v">True</span>
+<span class="n">ssh_args</span>            = <span class="v">-o ControlMaster=auto -o ControlPersist=60s</span>
+<span class="n">control_path</span>        = <span class="s">%(directory)s/%%h-%%r</span>
+        </div>
+      </div>
+    `
+  }
+];
+
+// ============================================================
+// SCENARIOS DATA
+// ============================================================
+const scenarios = [
+  {
+    num:"01", title:"Automate Web Server Provisioning",
+    tags:[{l:"Infrastructure",c:"stag-infra"},{l:"nginx",c:"stag-infra"}],
+    problem:"Provision nginx on 50 newly launched EC2 instances within 5 minutes, with correct config, firewall rules, and health check.",
+    keyModules:["package","template","service","firewalld","uri"],
+    code:`- name: Provision web servers
+  hosts: webservers
+  become: yes
+  vars:
+    nginx_port: 80
+  tasks:
+    - name: Install nginx
+      package:
+        name: nginx
+        state: present
+
+    - name: Deploy site config
+      template:
+        src: nginx-site.conf.j2
+        dest: /etc/nginx/conf.d/app.conf
+        validate: "/usr/sbin/nginx -t -c %s"
+      notify: reload nginx
+
+    - name: Open HTTP/HTTPS ports
+      firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      loop: [http, https]
+
+    - name: Verify health check
+      uri:
+        url: "http://{{ ansible_default_ipv4.address }}/health"
+        status_code: 200
+      retries: 5
+      delay: 5
+
+  handlers:
+    - name: reload nginx
+      service: name=nginx state=reloaded`,
+    tip:"Use serial: '20%' for rolling deployments to avoid taking all servers down simultaneously."
+  },
+  {
+    num:"02", title:"HAProxy Load Balancer Configuration",
+    tags:[{l:"Infrastructure",c:"stag-infra"},{l:"Load Balancer",c:"stag-infra"}],
+    problem:"Dynamically configure HAProxy to include/exclude backend servers based on Ansible inventory groups.",
+    keyModules:["template","service","haproxy"],
+    code:`- name: Configure HAProxy
+  hosts: loadbalancers
+  become: yes
+  tasks:
+    - name: Install HAProxy
+      package:
+        name: haproxy
+        state: present
+
+    - name: Deploy HAProxy config
+      template:
+        src: haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+        validate: "haproxy -c -f %s"
+      notify: restart haproxy
+
+  handlers:
+    - name: restart haproxy
+      service: name=haproxy state=restarted enabled=yes
+
+# haproxy.cfg.j2 snippet:
+# backend app_backend
+# {%- for host in groups['appservers'] %}
+#   server {{ host }} {{ hostvars[host].ansible_host }}:8080 check
+# {%- endfor %}`,
+    tip:"The template auto-discovers appserver IPs using hostvars — adding a new server to inventory automatically includes it in HAProxy."
+  },
+  {
+    num:"03", title:"MySQL Cluster Setup & Replication",
+    tags:[{l:"Database",c:"stag-db"},{l:"MySQL",c:"stag-db"}],
+    problem:"Deploy a MySQL primary-replica cluster with replication configured, grants applied, and .my.cnf secured.",
+    keyModules:["mysql_db","mysql_user","mysql_replication","template"],
+    code:`- name: Configure MySQL Primary
+  hosts: mysql_primary
+  become: yes
+  tasks:
+    - name: Install MySQL
+      package:
+        name: [mysql-server, python3-pymysql]
+        state: present
+
+    - name: Create application database
+      mysql_db:
+        name: appdb
+        state: present
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
+    - name: Create replication user
+      mysql_user:
+        name: replicator
+        password: "{{ vault_repl_password }}"
+        priv: "*.*:REPLICATION SLAVE"
+        host: "10.0.2.%"
+        state: present
+
+- name: Configure MySQL Replicas
+  hosts: mysql_replicas
+  become: yes
+  tasks:
+    - name: Set up replication
+      mysql_replication:
+        mode: changeprimary
+        primary_host: "{{ groups['mysql_primary'][0] }}"
+        primary_user: replicator
+        primary_password: "{{ vault_repl_password }}"
+        primary_auto_position: yes`,
+    tip:"Always use ansible-vault for database passwords. The mysql_replication module handles GTID-based replication natively."
+  },
+  {
+    num:"04", title:"NFS Shared Storage Automation",
+    tags:[{l:"Infrastructure",c:"stag-infra"},{l:"Storage",c:"stag-infra"}],
+    problem:"Configure NFS server exports and mount NFS shares on all application servers with correct fstab entries.",
+    keyModules:["package","template","service","mount","lineinfile"],
+    code:`- name: Configure NFS Server
+  hosts: nfs_server
+  become: yes
+  tasks:
+    - name: Install NFS packages
+      package:
+        name: [nfs-utils, rpcbind]
+        state: present
+
+    - name: Create export directories
+      file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: nobody
+        mode: "0755"
+      loop: "{{ nfs_exports }}"
+
+    - name: Configure exports
+      template:
+        src: exports.j2
+        dest: /etc/exports
+      notify: [restart nfs, export fs]
+
+- name: Mount NFS on app servers
+  hosts: appservers
+  become: yes
+  tasks:
+    - name: Mount NFS share
+      mount:
+        path: /mnt/shared
+        src: "{{ nfs_server_ip }}:/exports/shared"
+        fstype: nfs
+        opts: "rw,hard,intr,timeo=14,rsize=32768,wsize=32768"
+        state: mounted`,
+    tip:"Use the mount module with state: mounted to both add fstab AND mount immediately. state: present only writes fstab without mounting."
+  },
+  {
+    num:"05", title:"Docker Host Fleet Management",
+    tags:[{l:"Infrastructure",c:"stag-infra"},{l:"Docker",c:"stag-infra"}],
+    problem:"Install Docker on 100 hosts, configure daemon settings, add users to docker group, and deploy containers.",
+    keyModules:["package","template","service","user","docker_container"],
+    code:`- name: Configure Docker Hosts
+  hosts: docker_fleet
+  become: yes
+  roles:
+    - role: geerlingguy.docker
+      vars:
+        docker_users: [deploy, ec2-user]
+
+  tasks:
+    - name: Configure Docker daemon
+      copy:
+        content: |
+          {
+            "log-driver": "json-file",
+            "log-opts": {"max-size": "100m", "max-file": "3"},
+            "storage-driver": "overlay2",
+            "live-restore": true
+          }
+        dest: /etc/docker/daemon.json
+      notify: restart docker
+
+    - name: Deploy monitoring container
+      docker_container:
+        name: node-exporter
+        image: prom/node-exporter:latest
+        state: started
+        restart_policy: always
+        ports: ["9100:9100"]
+        volumes:
+          - /proc:/host/proc:ro
+          - /sys:/host/sys:ro`,
+    tip:"Set live-restore: true in daemon.json so containers keep running during Docker daemon upgrades."
+  },
+  {
+    num:"06", title:"CIS Benchmark Server Hardening",
+    tags:[{l:"Security",c:"stag-security"},{l:"Compliance",c:"stag-security"}],
+    problem:"Apply CIS Level 1 hardening to 200 RHEL servers: SSH config, kernel params, password policy, and audit rules.",
+    keyModules:["lineinfile","template","sysctl","service","command"],
+    code:`- name: CIS Hardening - RHEL 8/9
+  hosts: all
+  become: yes
+  tasks:
+    - name: CIS 5.2 - Harden SSH
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop:
+        - {regexp: '^PermitRootLogin', line: 'PermitRootLogin no'}
+        - {regexp: '^PasswordAuthentication', line: 'PasswordAuthentication no'}
+        - {regexp: '^MaxAuthTries', line: 'MaxAuthTries 4'}
+        - {regexp: '^Protocol', line: 'Protocol 2'}
+        - {regexp: '^ClientAliveInterval', line: 'ClientAliveInterval 300'}
+      notify: restart sshd
+
+    - name: CIS 3.3 - Kernel network params
+      sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        sysctl_set: yes
+        state: present
+        reload: yes
+      loop:
+        - {name: net.ipv4.ip_forward, value: '0'}
+        - {name: net.ipv4.conf.all.accept_redirects, value: '0'}
+        - {name: net.ipv4.tcp_syncookies, value: '1'}
+
+    - name: CIS 6.2 - Password policy
+      template:
+        src: pwquality.conf.j2
+        dest: /etc/security/pwquality.conf`,
+    tip:"Use tags (--tags cis-ssh, --tags cis-kernel) to apply specific CIS sections during audit remediation cycles."
+  },
+  {
+    num:"07", title:"SSL Certificate Rotation at Scale",
+    tags:[{l:"Security",c:"stag-security"},{l:"SSL/TLS",c:"stag-security"}],
+    problem:"Rotate expiring SSL certificates across 30 load balancers with zero downtime — validate new cert before cutover.",
+    keyModules:["copy","openssl_certificate_info","command","service","uri"],
+    code:`- name: SSL Certificate Rotation
+  hosts: loadbalancers
+  become: yes
+  serial: 1  # one LB at a time for zero downtime
+  vars:
+    cert_dir: /etc/ssl/certs
+    new_cert: "files/{{ inventory_hostname }}.pem"
+    new_key: "files/{{ inventory_hostname }}.key"
+
+  tasks:
+    - name: Verify new certificate validity
+      openssl_certificate_info:
+        path: "{{ new_cert }}"
+      register: cert_info
+      delegate_to: localhost
+
+    - name: Fail if cert expires in <30 days
+      fail:
+        msg: "Certificate too close to expiry!"
+      when: (cert_info.not_after | to_datetime('%Y%m%d%H%M%SZ') - now()).days < 30
+
+    - name: Backup current certificate
+      copy:
+        src: "{{ cert_dir }}/server.pem"
+        dest: "{{ cert_dir }}/server.pem.bak_{{ ansible_date_time.date }}"
+        remote_src: yes
+
+    - name: Deploy new certificate
+      copy:
+        src: "{{ new_cert }}"
+        dest: "{{ cert_dir }}/server.pem"
+        mode: '0644'
+
+    - name: Test HTTPS endpoint
+      uri:
+        url: "https://{{ inventory_hostname }}/health"
+        validate_certs: yes
+        status_code: 200`,
+    tip:"Set serial: 1 for certificate rotation so each server is validated before moving to the next. A failed cert won't take down the whole fleet."
+  },
+  {
+    num:"08", title:"Firewall Rules Management (firewalld / iptables)",
+    tags:[{l:"Security",c:"stag-security"},{l:"Network",c:"stag-infra"}],
+    problem:"Enforce firewall rules consistently across dev/staging/prod environments with environment-specific port allowlists.",
+    keyModules:["firewalld","iptables","template"],
+    code:`- name: Configure Firewall Rules
+  hosts: all
+  become: yes
+  vars:
+    allowed_ports:
+      webservers: [80, 443, 8080]
+      dbservers: [3306, 5432]
+      all: [22]
+
+  tasks:
+    - name: Install firewalld
+      package:
+        name: firewalld
+        state: present
+
+    - name: Start firewalld
+      service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Set default zone to drop
+      command: firewall-cmd --set-default-zone=drop
+      changed_when: false
+
+    - name: Open ports for this host's role
+      firewalld:
+        port: "{{ item }}/tcp"
+        zone: public
+        permanent: yes
+        state: enabled
+        immediate: yes
+      loop: "{{ allowed_ports[group_names[0]] | default([]) + allowed_ports['all'] }}"
+
+    - name: Allow SSH from management subnet only
+      firewalld:
+        rich_rule: 'rule family="ipv4" source address="10.0.100.0/24" port port="22" protocol="tcp" accept'
+        permanent: yes
+        state: enabled
+        immediate: yes`,
+    tip:"Use group_names[0] to automatically select the right port list based on which inventory group the host belongs to."
+  },
+  {
+    num:"09", title:"SSH Key Management Across Fleet",
+    tags:[{l:"Security",c:"stag-security"},{l:"Access Control",c:"stag-security"}],
+    problem:"Distribute SSH public keys for 50 engineers, rotate keys for a departing employee, and enforce authorized_keys standards.",
+    keyModules:["authorized_key","user","file"],
+    code:`- name: Manage SSH Keys
+  hosts: all
+  become: yes
+  vars_files:
+    - vars/engineers.yml
+
+  tasks:
+    - name: Add authorized keys for active engineers
+      authorized_key:
+        user: "{{ item.username }}"
+        key: "{{ item.public_key }}"
+        state: present
+        exclusive: no
+      loop: "{{ active_engineers }}"
+      when: item.active | default(true)
+
+    - name: Remove keys for departing employees
+      authorized_key:
+        user: "{{ item.username }}"
+        key: "{{ item.public_key }}"
+        state: absent
+      loop: "{{ departing_engineers }}"
+
+    - name: Enforce authorized_keys permissions
+      file:
+        path: "/home/{{ item.username }}/.ssh/authorized_keys"
+        owner: "{{ item.username }}"
+        mode: '0600'
+      loop: "{{ active_engineers }}"
+
+# vars/engineers.yml
+# active_engineers:
+#   - username: alice
+#     public_key: "ssh-ed25519 AAAA..."
+#   - username: bob
+#     public_key: "ssh-ed25519 BBBB..."`,
+    tip:"Store public keys in group_vars so adding/removing an engineer just requires editing one YAML file and re-running the playbook."
+  },
+  {
+    num:"10", title:"User & Sudoers Automation",
+    tags:[{l:"Security",c:"stag-security"},{l:"Access Control",c:"stag-security"}],
+    problem:"Create service accounts, manage sudoers with NOPASSWD rules, and enforce password policy across all servers.",
+    keyModules:["user","group","copy","template","lineinfile"],
+    code:`- name: User and Sudoers Management
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create service accounts
+      user:
+        name: "{{ item.name }}"
+        groups: "{{ item.groups | default([]) }}"
+        shell: "{{ item.shell | default('/bin/bash') }}"
+        create_home: yes
+        state: present
+      loop: "{{ service_accounts }}"
+
+    - name: Deploy sudoers file (validated)
+      template:
+        src: sudoers.j2
+        dest: /etc/sudoers.d/ansible_managed
+        mode: '0440'
+        validate: 'visudo -cf %s'
+
+    - name: Set up deploy user NOPASSWD
+      copy:
+        content: |
+          # Managed by Ansible - do not edit
+          deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart app
+          deploy ALL=(ALL) NOPASSWD: /usr/bin/docker
+          %ops ALL=(ALL) NOPASSWD: ALL
+        dest: /etc/sudoers.d/deploy
+        mode: '0440'
+        validate: 'visudo -cf %s'`,
+    tip:"Always use validate: 'visudo -cf %s' when managing sudoers files. A syntax error in /etc/sudoers can lock you out of sudo entirely."
+  },
+  {
+    num:"11", title:"AWS EC2 Instance Provisioning",
+    tags:[{l:"AWS",c:"stag-aws"},{l:"Cloud",c:"stag-aws"}],
+    problem:"Provision EC2 instances with specific instance types, security groups, user data, and tags — then run post-provisioning config.",
+    keyModules:["ec2_instance","ec2_security_group","route53"],
+    code:`- name: Provision EC2 Fleet
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    region: us-east-1
+    instance_type: t3.large
+    ami_id: ami-0c55b159cbfafe1f0
+    count: 3
+
+  tasks:
+    - name: Create security group
+      amazon.aws.ec2_security_group:
+        name: webservers-sg
+        description: Web tier security group
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            ports: [80, 443]
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            ports: [22]
+            cidr_ip: "{{ mgmt_cidr }}"
+
+    - name: Launch EC2 instances
+      amazon.aws.ec2_instance:
+        name: "webserver-{{ item }}"
+        region: "{{ region }}"
+        instance_type: "{{ instance_type }}"
+        image_id: "{{ ami_id }}"
+        key_name: ansible-key
+        security_groups: [webservers-sg]
+        vpc_subnet_id: "{{ vpc_subnet_id }}"
+        tags:
+          Environment: production
+          Role: webserver
+          ManagedBy: ansible
+        user_data: |
+          #!/bin/bash
+          yum install -y python3
+        wait: yes
+      loop: "{{ range(1, count+1) | list }}"
+      register: ec2_result`,
+    tip:"Add wait: yes to ensure the instance is running before the next task. Combine with a refresh_inventory to immediately run post-provisioning playbooks."
+  },
+  {
+    num:"12", title:"S3 Bucket Policy & Lifecycle Rules",
+    tags:[{l:"AWS",c:"stag-aws"},{l:"Storage",c:"stag-aws"}],
+    problem:"Create S3 buckets with versioning, server-side encryption, lifecycle rules, and bucket policies enforced via Ansible.",
+    keyModules:["s3_bucket","aws_s3","s3_lifecycle"],
+    code:`- name: Configure S3 Buckets
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Create S3 bucket with security settings
+      amazon.aws.s3_bucket:
+        name: "{{ company }}-backups-{{ env }}"
+        region: us-east-1
+        versioning: yes
+        encryption: AES256
+        public_access:
+          block_public_acls: yes
+          block_public_policy: yes
+          ignore_public_acls: yes
+          restrict_public_buckets: yes
+        tags:
+          Environment: "{{ env }}"
+          DataClassification: confidential
+
+    - name: Set lifecycle rules
+      community.aws.s3_lifecycle:
+        name: "{{ company }}-backups-{{ env }}"
+        rule_id: expire-old-backups
+        prefix: database/
+        status: enabled
+        transitions:
+          - days: 30
+            storage_class: STANDARD_IA
+          - days: 90
+            storage_class: GLACIER
+        expiration_days: 365`,
+    tip:"Use separate S3 buckets per environment (dev/staging/prod) and enforce bucket policies via Ansible to prevent manual policy drift."
+  },
+  {
+    num:"13", title:"RDS Snapshot Automation",
+    tags:[{l:"AWS",c:"stag-aws"},{l:"Database",c:"stag-db"}],
+    problem:"Create on-demand RDS snapshots before major deployments, verify snapshot completion, and clean up snapshots older than 30 days.",
+    keyModules:["rds_snapshot","rds_instance_info","aws_rds"],
+    code:`- name: RDS Snapshot Management
+  hosts: localhost
+  connection: local
+  vars:
+    db_instance: prod-sqlserver-01
+    retention_days: 30
+
+  tasks:
+    - name: Create pre-deployment snapshot
+      amazon.aws.rds_snapshot:
+        db_instance_identifier: "{{ db_instance }}"
+        db_snapshot_identifier: "pre-deploy-{{ db_instance }}-{{ ansible_date_time.date }}"
+        state: present
+        wait: yes
+        wait_timeout: 900
+        tags:
+          CreatedBy: ansible
+          Purpose: pre-deployment
+          ExpiryDate: "{{ (ansible_date_time.epoch | int + 86400 * retention_days) | timestamp_to_datetime }}"
+      register: snapshot_result
+
+    - name: Verify snapshot available
+      assert:
+        that:
+          - snapshot_result.snapshot.status == 'available'
+        fail_msg: "Snapshot did not complete successfully!"
+
+    - name: List old snapshots
+      amazon.aws.rds_snapshot_info:
+        db_instance_identifier: "{{ db_instance }}"
+      register: all_snapshots
+
+    - name: Delete snapshots older than retention
+      amazon.aws.rds_snapshot:
+        db_snapshot_identifier: "{{ item.db_snapshot_identifier }}"
+        state: absent
+      loop: "{{ all_snapshots.snapshots }}"
+      when:
+        - item.snapshot_create_time is defined
+        - (now() - item.snapshot_create_time | to_datetime).days > retention_days`,
+    tip:"This pattern is essential for SQL Server DBAs moving to AWS RDS. Run snapshot creation as a pre_task before any schema migration playbook."
+  },
+  {
+    num:"14", title:"ELB Health Check & Instance Draining",
+    tags:[{l:"AWS",c:"stag-aws"},{l:"Infrastructure",c:"stag-infra"}],
+    problem:"Remove EC2 instances from ELB before patching, wait for connections to drain, patch, then re-register with health verification.",
+    keyModules:["elb_instance","elb_application_lb_info","pause"],
+    code:`- name: Rolling Patch with ELB Drain
+  hosts: webservers
+  become: yes
+  serial: 1
+
+  pre_tasks:
+    - name: Deregister from load balancer
+      community.aws.elb_instance:
+        instance_id: "{{ ansible_ec2_instance_id }}"
+        ec2_elbs: "{{ elb_name }}"
+        state: absent
+        wait: yes
+
+    - name: Wait for connections to drain
+      pause:
+        seconds: 60
+        prompt: "Waiting for connections to drain on {{ inventory_hostname }}"
+
+  tasks:
+    - name: Apply OS patches
+      package:
+        name: "*"
+        state: latest
+      register: patch_result
+
+    - name: Reboot if needed
+      reboot:
+        reboot_timeout: 300
+      when: patch_result.changed
+
+  post_tasks:
+    - name: Re-register with load balancer
+      community.aws.elb_instance:
+        instance_id: "{{ ansible_ec2_instance_id }}"
+        ec2_elbs: "{{ elb_name }}"
+        state: present
+        wait: yes
+
+    - name: Verify health check passes
+      uri:
+        url: "http://{{ ansible_host }}/health"
+        status_code: 200
+      retries: 10
+      delay: 10`,
+    tip:"This is the gold standard for zero-downtime patching. The serial: 1 ensures one node is always in maintenance while others serve traffic."
+  },
+  {
+    num:"15", title:"VPC Security Group Automation",
+    tags:[{l:"AWS",c:"stag-aws"},{l:"Security",c:"stag-security"}],
+    problem:"Enforce security group rules as code — any manual change detected and corrected on next Ansible run (drift remediation).",
+    keyModules:["ec2_security_group","ec2_security_group_info"],
+    code:`- name: Enforce VPC Security Groups
+  hosts: localhost
+  connection: local
+  vars_files:
+    - vars/security_groups.yml
+
+  tasks:
+    - name: Enforce DB security group
+      amazon.aws.ec2_security_group:
+        name: db-tier-sg
+        description: Database tier - managed by Ansible
+        vpc_id: "{{ vpc_id }}"
+        region: "{{ aws_region }}"
+        rules:
+          - proto: tcp
+            ports: [1433]  # SQL Server
+            group_name: app-tier-sg
+            group_desc: Allow from app tier only
+          - proto: tcp
+            ports: [1433]
+            cidr_ip: "{{ mgmt_cidr }}"
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+        tags:
+          ManagedBy: ansible
+          LastApplied: "{{ ansible_date_time.iso8601 }}"
+      register: sg_result
+
+    - name: Report drift if rules were changed
+      debug:
+        msg: "⚠️ Security group was out of compliance and has been corrected!"
+      when: sg_result.changed`,
+    tip:"Schedule this playbook in Ansible Tower/AWX to run every 6 hours. Any manual changes to security groups will be automatically reverted."
+  },
+  {
+    num:"16", title:"Zero-Downtime Blue-Green Deployment",
+    tags:[{l:"CI/CD",c:"stag-ci"},{l:"Deployment",c:"stag-ci"}],
+    problem:"Deploy new application version to green environment, run smoke tests, then switch traffic — instant rollback on failure.",
+    keyModules:["uri","aws_elb_target_group","template","shell"],
+    code:`- name: Blue-Green Deployment
+  hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Get current active color
+      uri:
+        url: "{{ aws_api_gw }}/deployment/active"
+        method: GET
+        return_content: yes
+      register: current_env
+
+    - name: Set target (inactive) color
+      set_fact:
+        active_color: "{{ current_env.json.color }}"
+        target_color: "{{ 'green' if current_env.json.color == 'blue' else 'blue' }}"
+
+    - name: Deploy to {{ target_color }} environment
+      include_tasks: tasks/deploy_app.yml
+      vars:
+        deploy_target: "{{ target_color }}"
+
+    - name: Run smoke tests against {{ target_color }}
+      uri:
+        url: "https://{{ target_color }}.internal.example.com/api/health"
+        method: GET
+        status_code: 200
+      retries: 5
+      delay: 10
+
+    - name: Switch traffic to {{ target_color }}
+      amazon.aws.elb_application_lb:
+        name: prod-alb
+        listeners:
+          - Protocol: HTTPS
+            Port: 443
+            DefaultActions:
+              - Type: forward
+                TargetGroupName: "app-{{ target_color }}-tg"
+
+    - name: Rollback on failure
+      amazon.aws.elb_application_lb:
+        name: prod-alb
+        listeners:
+          - Protocol: HTTPS
+            DefaultActions:
+              - Type: forward
+                TargetGroupName: "app-{{ active_color }}-tg"
+      when: smoke_test_result is failed`,
+    tip:"Store the active/inactive color in an SSM Parameter Store key so the playbook always knows which environment is live."
+  },
+  {
+    num:"17", title:"Rolling OS Patch Management",
+    tags:[{l:"Infrastructure",c:"stag-infra"},{l:"Patching",c:"stag-ci"}],
+    problem:"Patch 500 servers in batches of 20, reboot if kernel updated, skip if not in maintenance window, and generate patch report.",
+    keyModules:["package","reboot","stat","template"],
+    code:`- name: Rolling OS Patch Management
+  hosts: all
+  become: yes
+  serial: 20
+  max_fail_percentage: 10
+
+  tasks:
+    - name: Check maintenance window
+      assert:
+        that:
+          - ansible_date_time.weekday_number in ['6', '0']
+          - ansible_date_time.hour | int >= 2
+          - ansible_date_time.hour | int <= 6
+        fail_msg: "NOT in maintenance window. Aborting."
+      run_once: false
+      when: env == 'production'
+
+    - name: Capture pre-patch kernel
+      command: uname -r
+      register: pre_kernel
+      changed_when: false
+
+    - name: Apply all patches
+      package:
+        name: "*"
+        state: latest
+      register: patch_result
+
+    - name: Capture post-patch kernel
+      command: uname -r
+      register: post_kernel
+      changed_when: false
+
+    - name: Reboot if kernel updated
+      reboot:
+        msg: "Rebooting for kernel update"
+        reboot_timeout: 600
+      when: pre_kernel.stdout != post_kernel.stdout
+
+    - name: Generate patch report
+      template:
+        src: patch_report.j2
+        dest: "/tmp/patch_report_{{ inventory_hostname }}.txt"
+      delegate_to: localhost`,
+    tip:"Use max_fail_percentage: 10 to stop patching if more than 10% of a batch fails — prevents cascading failures across the fleet."
+  },
+  {
+    num:"18", title:"Configuration Drift Detection & Remediation",
+    tags:[{l:"CI/CD",c:"stag-ci"},{l:"Compliance",c:"stag-security"}],
+    problem:"Detect servers whose configs have drifted from golden standard and auto-remediate or alert based on severity.",
+    keyModules:["template","stat","command","slack"],
+    code:`- name: Config Drift Detection
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Compute expected config checksum
+      stat:
+        path: /etc/app/config.yml
+        checksum_algorithm: sha256
+      register: current_config
+
+    - name: Render expected config to temp
+      template:
+        src: config.yml.j2
+        dest: /tmp/expected_config.yml
+      changed_when: false
+
+    - name: Compute expected checksum
+      stat:
+        path: /tmp/expected_config.yml
+        checksum_algorithm: sha256
+      register: expected_config
+
+    - name: Detect drift
+      set_fact:
+        config_drifted: >
+          {{ current_config.stat.checksum != expected_config.stat.checksum }}
+
+    - name: Alert on drift (Slack)
+      slack:
+        token: "{{ vault_slack_token }}"
+        msg: "⚠️ Config drift detected on {{ inventory_hostname }}"
+        channel: "#ops-alerts"
+      when: config_drifted
+      delegate_to: localhost
+
+    - name: Remediate drift
+      copy:
+        src: /tmp/expected_config.yml
+        dest: /etc/app/config.yml
+        remote_src: yes
+      when: config_drifted and auto_remediate | default(false)`,
+    tip:"Run in --check mode first (audit) then with auto_remediate=true (fix). This gives you a two-phase drift management workflow."
+  },
+  {
+    num:"19", title:"Jenkins CI/CD Integration",
+    tags:[{l:"CI/CD",c:"stag-ci"},{l:"Jenkins",c:"stag-ci"}],
+    problem:"Trigger Ansible playbooks from Jenkins pipeline, pass build artifacts, capture output, and fail the build if deployment fails.",
+    keyModules:["command","uri","slack","Jenkinsfile"],
+    code:`// Jenkinsfile
+pipeline {
+    agent { label 'ansible-runner' }
+    parameters {
+        choice(name: 'ENV', choices: ['staging', 'production'])
+        string(name: 'APP_VERSION', defaultValue: 'latest')
+    }
+    environment {
+        VAULT_PASS = credentials('ansible-vault-password')
+        AWS_CREDS   = credentials('aws-prod-creds')
+    }
+    stages {
+        stage('Validate') {
+            steps {
+                sh 'ansible-lint site.yml'
+                sh 'ansible-playbook site.yml --syntax-check'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh """
+                ansible-playbook deploy.yml \\
+                  -i inventory/\${ENV}/ \\
+                  -e app_version=\${APP_VERSION} \\
+                  -e env=\${ENV} \\
+                  --vault-password-file <(echo $VAULT_PASS)
+                """
+            }
+        }
+        stage('Verify') {
+            steps {
+                sh 'ansible-playbook verify.yml -i inventory/\${ENV}/'
+            }
+        }
+    }
+    post {
+        failure {
+            slackSend channel: '#deployments',
+                      message: "FAILED: \${ENV} deploy of \${APP_VERSION}"
+        }
+        success {
+            slackSend channel: '#deployments',
+                      message: "SUCCESS: \${ENV} deploy of \${APP_VERSION}"
+        }
+    }
+}`,
+    tip:"Use process substitution <(echo $VAULT_PASS) to pass the vault password without writing it to a file on disk."
+  },
+  {
+    num:"20", title:"GitLab CI + Ansible Pipeline",
+    tags:[{l:"CI/CD",c:"stag-ci"},{l:"GitLab",c:"stag-ci"}],
+    problem:"Full GitLab CI pipeline: lint → test → staging deploy → manual gate → production deploy using Ansible.",
+    keyModules:[".gitlab-ci.yml","ansible-playbook","ansible-lint"],
+    code:`# .gitlab-ci.yml
+image: cytopia/ansible:latest
+
+stages:
+  - validate
+  - test
+  - deploy-staging
+  - deploy-prod
+
+variables:
+  ANSIBLE_FORCE_COLOR: "1"
+
+before_script:
+  - echo "$VAULT_PASSWORD" > .vault_pass
+  - chmod 600 .vault_pass
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | ssh-add -
+
+lint:
+  stage: validate
+  script:
+    - ansible-lint site.yml
+    - yamllint .
+
+syntax-check:
+  stage: validate
+  script:
+    - ansible-playbook site.yml --syntax-check -i inventory/staging/
+
+deploy-staging:
+  stage: deploy-staging
+  script:
+    - ansible-playbook site.yml
+        -i inventory/staging/
+        --vault-password-file .vault_pass
+        -e "env=staging"
+  environment: staging
+  only: [main]
+
+deploy-production:
+  stage: deploy-prod
+  script:
+    - ansible-playbook site.yml
+        -i inventory/production/
+        --vault-password-file .vault_pass
+        -e "env=production"
+  environment: production
+  when: manual  # requires approval
+  only: [main]`,
+    tip:"Use GitLab Environments to get deployment history and one-click rollback. The when: manual gate ensures human approval before production."
+  },
+  {
+    num:"21", title:"SQL Server Backup Automation on AWS RDS",
+    tags:[{l:"Database",c:"stag-db"},{l:"AWS",c:"stag-aws"}],
+    problem:"Automate SQL Server RDS native backups, export to S3, verify backup integrity, and alert the DBA team on completion.",
+    keyModules:["rds_snapshot","aws_s3","uri","slack"],
+    code:`- name: SQL Server RDS Backup Automation
+  hosts: localhost
+  connection: local
+  vars:
+    rds_instances:
+      - id: rds-sqlserver-prod-01
+        db: AppDatabase
+      - id: rds-sqlserver-prod-02
+        db: ReportingDB
+
+  tasks:
+    - name: Take RDS snapshot for each instance
+      amazon.aws.rds_snapshot:
+        db_instance_identifier: "{{ item.id }}"
+        db_snapshot_identifier: "auto-{{ item.id }}-{{ ansible_date_time.date }}"
+        state: present
+        wait: yes
+        wait_timeout: 3600
+        tags:
+          BackupType: automated
+          DBName: "{{ item.db }}"
+          RetentionDays: "30"
+      loop: "{{ rds_instances }}"
+      register: snapshots
+
+    - name: Export snapshot to S3
+      amazon.aws.rds_export_task:
+        export_task_identifier: "export-{{ item.item.id }}-{{ ansible_date_time.date }}"
+        source_arn: "{{ item.snapshot.db_snapshot_arn }}"
+        s3_bucket_name: "company-rds-exports"
+        s3_prefix: "sqlserver/{{ item.item.db }}/{{ ansible_date_time.date }}"
+        iam_role_arn: "{{ rds_export_role_arn }}"
+        kms_key_id: "{{ kms_key_id }}"
+      loop: "{{ snapshots.results }}"
+
+    - name: Notify DBA team
+      slack:
+        token: "{{ vault_slack_token }}"
+        msg: |
+          ✅ SQL Server RDS Backups Complete
+          Instances: {{ rds_instances | map(attribute='id') | join(', ') }}
+          Date: {{ ansible_date_time.date }}
+          S3: s3://company-rds-exports/sqlserver/
+        channel: "#dba-ops"`,
+    tip:"For SQL Server on RDS, also configure automated backups (backup_retention_period) at instance level. Use Ansible for additional on-demand backups before major changes."
+  },
+  {
+    num:"22", title:"Prometheus + Grafana Monitoring Stack",
+    tags:[{l:"Monitoring",c:"stag-infra"},{l:"Infrastructure",c:"stag-infra"}],
+    problem:"Deploy Prometheus, Grafana, AlertManager, and Node Exporter across the fleet with custom alert rules.",
+    keyModules:["docker_container","template","uri","copy"],
+    code:`- name: Deploy Monitoring Stack
+  hosts: monitoring_servers
+  become: yes
+  tasks:
+    - name: Deploy Prometheus
+      docker_container:
+        name: prometheus
+        image: prom/prometheus:latest
+        state: started
+        restart_policy: always
+        ports: ["9090:9090"]
+        volumes:
+          - /opt/prometheus/config:/etc/prometheus
+          - prometheus_data:/prometheus
+        command:
+          - '--config.file=/etc/prometheus/prometheus.yml'
+          - '--storage.tsdb.retention.time=30d'
+
+    - name: Deploy Grafana
+      docker_container:
+        name: grafana
+        image: grafana/grafana:latest
+        state: started
+        restart_policy: always
+        ports: ["3000:3000"]
+        env:
+          GF_SECURITY_ADMIN_PASSWORD: "{{ vault_grafana_password }}"
+          GF_INSTALL_PLUGINS: "grafana-piechart-panel"
+
+- name: Install Node Exporter on all managed hosts
+  hosts: all
+  become: yes
+  tasks:
+    - name: Deploy node-exporter
+      docker_container:
+        name: node-exporter
+        image: prom/node-exporter:latest
+        state: started
+        restart_policy: always
+        ports: ["9100:9100"]
+        volumes:
+          - /proc:/host/proc:ro
+          - /sys:/host/sys:ro`,
+    tip:"Use template module to generate prometheus.yml dynamically from inventory — it auto-discovers new hosts as they're added to inventory."
+  },
+  {
+    num:"23", title:"Centralized Log Rotation Management",
+    tags:[{l:"Infrastructure",c:"stag-infra"},{l:"Operations",c:"stag-infra"}],
+    problem:"Enforce consistent logrotate configs across 300 servers, ensure application logs don't fill disks, and alert on disk usage.",
+    keyModules:["template","cron","command","shell"],
+    code:`- name: Configure Log Rotation
+  hosts: all
+  become: yes
+  tasks:
+    - name: Deploy application logrotate config
+      template:
+        src: app-logrotate.j2
+        dest: /etc/logrotate.d/application
+        mode: '0644'
+
+    - name: Deploy logrotate config for SQL Server agent logs
+      copy:
+        content: |
+          /var/opt/mssql/log/*.log {
+              daily
+              rotate 14
+              compress
+              delaycompress
+              missingok
+              notifempty
+              postrotate
+                  systemctl reload mssql-server
+              endscript
+          }
+        dest: /etc/logrotate.d/mssql
+
+    - name: Schedule daily logrotate run
+      cron:
+        name: logrotate
+        hour: "2"
+        minute: "30"
+        job: "/usr/sbin/logrotate /etc/logrotate.conf"
+
+    - name: Check disk usage and alert
+      shell: df -h / | awk 'NR==2 {print $5}' | tr -d '%'
+      register: disk_usage
+      changed_when: false
+
+    - name: Alert if disk > 80%
+      slack:
+        token: "{{ vault_slack_token }}"
+        msg: "🚨 Disk usage {{ disk_usage.stdout }}% on {{ inventory_hostname }}"
+        channel: "#ops-alerts"
+      when: disk_usage.stdout | int > 80`,
+    tip:"Add postrotate scripts to reload (not restart) services after log rotation to avoid service interruption."
+  },
+  {
+    num:"24", title:"Automated Compliance Reporting",
+    tags:[{l:"Security",c:"stag-security"},{l:"Compliance",c:"stag-security"}],
+    problem:"Generate a comprehensive HTML compliance report checking 30+ controls across all servers and email it to the security team.",
+    keyModules:["stat","command","template","mail"],
+    code:`- name: Compliance Audit
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Check SSH root login disabled
+      command: grep -i "PermitRootLogin no" /etc/ssh/sshd_config
+      register: ssh_root
+      failed_when: false
+      changed_when: false
+
+    - name: Check password auth disabled
+      command: grep -i "PasswordAuthentication no" /etc/ssh/sshd_config
+      register: ssh_pass
+      failed_when: false
+      changed_when: false
+
+    - name: Check firewalld running
+      service_facts:
+      register: svc_facts
+
+    - name: Check unattended upgrades
+      stat:
+        path: /etc/apt/apt.conf.d/50unattended-upgrades
+      register: unattended
+
+    - name: Collect compliance data
+      set_fact:
+        compliance_data:
+          hostname: "{{ inventory_hostname }}"
+          ssh_root_disabled: "{{ ssh_root.rc == 0 }}"
+          password_auth_disabled: "{{ ssh_pass.rc == 0 }}"
+          firewall_running: "{{ 'firewalld.service' in svc_facts.ansible_facts.services }}"
+          os_family: "{{ ansible_os_family }}"
+          os_version: "{{ ansible_distribution_version }}"
+
+- name: Generate Compliance Report
+  hosts: localhost
+  run_once: yes
+  tasks:
+    - name: Render HTML report
+      template:
+        src: compliance_report.html.j2
+        dest: /tmp/compliance_report_{{ ansible_date_time.date }}.html
+
+    - name: Email report to security team
+      mail:
+        to: security@company.com
+        subject: "Weekly Compliance Report - {{ ansible_date_time.date }}"
+        body: "Please find attached the compliance report."
+        attach: /tmp/compliance_report_{{ ansible_date_time.date }}.html`,
+    tip:"Use hostvars to access compliance_data from all hosts in the Jinja2 template: {%- for host in groups['all'] %} {{ hostvars[host].compliance_data }}"
+  },
+  {
+    num:"25", title:"Multi-Environment Promotion Pipeline",
+    tags:[{l:"CI/CD",c:"stag-ci"},{l:"Enterprise",c:"stag-ci"}],
+    problem:"Promote application builds through dev → staging → UAT → production with approval gates, variable overrides, and rollback capability.",
+    keyModules:["uri","pause","include_playbook","slack","set_fact"],
+    code:`# promote.yml — Multi-Environment Promotion
+- name: Multi-Environment Promotion
+  hosts: localhost
+  connection: local
+  vars:
+    pipeline:
+      - env: dev
+        inventory: inventory/dev/
+        auto_approve: true
+      - env: staging
+        inventory: inventory/staging/
+        auto_approve: true
+      - env: uat
+        inventory: inventory/uat/
+        auto_approve: false  # requires human gate
+      - env: production
+        inventory: inventory/production/
+        auto_approve: false
+
+  tasks:
+    - name: Process each environment
+      include_tasks: tasks/promote_env.yml
+      loop: "{{ pipeline }}"
+      loop_control:
+        loop_var: environment
+
+# tasks/promote_env.yml
+- name: Notify team about upcoming deploy
+  slack:
+    token: "{{ vault_slack_token }}"
+    msg: "🚀 Starting deploy to {{ environment.env }} | Version: {{ app_version }}"
+
+- name: Manual approval gate
+  pause:
+    prompt: "Approve deployment to {{ environment.env }}? Press Enter to continue or Ctrl+C to abort"
+  when: not environment.auto_approve
+
+- name: Deploy to environment
+  command: >
+    ansible-playbook site.yml
+    -i {{ environment.inventory }}
+    -e "env={{ environment.env }} app_version={{ app_version }}"
+    --vault-password-file .vault_pass
+  register: deploy_result
+
+- name: Smoke test
+  uri:
+    url: "https://{{ environment.env }}.example.com/api/health"
+    status_code: 200
+  retries: 10
+
+- name: Notify success
+  slack:
+    token: "{{ vault_slack_token }}"
+    msg: "✅ Deploy to {{ environment.env }} SUCCEEDED"`,
+    tip:"Store app_version in git tags and pass --extra-vars 'app_version=$(git describe --tags)' from your CI system for full traceability."
+  }
+];
+
+// ============================================================
+// QUIZ DATA
+// ============================================================
+const quizQuestions = [
+  {q:"What transport protocol does Ansible use by default to connect to Linux hosts?",opts:["Telnet","HTTPS","SSH","WinRM"],ans:2,exp:"Ansible uses SSH for Linux/Unix hosts and WinRM for Windows. This is what makes it agentless."},
+  {q:"Which file defines the list of managed hosts in Ansible?",opts:["playbook.yml","ansible.cfg","inventory/hosts","site.yml"],ans:2,exp:"The inventory file (hosts.ini or hosts.yml) defines which hosts Ansible manages."},
+  {q:"What does 'idempotent' mean in Ansible context?",opts:["Fast execution","Running playbook N times = same result as once","Encrypted variables","Parallel execution"],ans:1,exp:"Idempotency means running a playbook multiple times produces the same end state — no unintended changes on repeat runs."},
+  {q:"Which module is used to render Jinja2 templates to managed nodes?",opts:["copy","file","template","render"],ans:2,exp:"The template module processes Jinja2 files and copies the rendered result to managed hosts."},
+  {q:"What is the highest priority variable source in Ansible?",opts:["group_vars","host_vars","role defaults","--extra-vars (-e)"],ans:3,exp:"Extra variables passed via -e on the command line have the highest priority and override all other variable sources."},
+  {q:"Which command encrypts an existing file with Ansible Vault?",opts:["ansible-vault create","ansible-vault encrypt","ansible-vault seal","ansible-vault lock"],ans:1,exp:"ansible-vault encrypt encrypts an existing plaintext file. ansible-vault create creates a new encrypted file."},
+  {q:"What does the 'serial' keyword in a play control?",opts:["Playbook execution order","Number of hosts updated simultaneously","Variable serialization","Task timeout"],ans:1,exp:"serial controls how many hosts are updated at one time — essential for rolling deployments without downtime."},
+  {q:"Which module should you use to manage lines in a file without replacing the whole file?",opts:["copy","replace","lineinfile","blockinfile"],ans:2,exp:"lineinfile manages a single line matching a pattern. blockinfile manages a block of lines delimited by markers."},
+  {q:"What is the purpose of 'become: yes' in a playbook?",opts:["SSH into host","Elevate privileges (sudo)","Switch to another user","Connect to Windows"],ans:1,exp:"become: yes enables privilege escalation (sudo by default). become_user specifies which user to become."},
+  {q:"Where should you put variables that should be easily overridable in a role?",opts:["vars/main.yml","tasks/main.yml","defaults/main.yml","meta/main.yml"],ans:2,exp:"defaults/main.yml has the lowest precedence — users can override these without any special effort. vars/main.yml is high-precedence."},
+  {q:"Which ansible.cfg setting enables SSH multiplexing for performance?",opts:["forks","pipelining","ControlMaster in ssh_args","gather_facts"],ans:2,exp:"SSH ControlMaster/ControlPersist in ssh_args reuses SSH connections across tasks, significantly speeding up execution."},
+  {q:"What does 'delegate_to: localhost' do in a task?",opts:["Run task on all hosts","Skip the task","Run task on control node instead of managed host","Connect via localhost"],ans:2,exp:"delegate_to: localhost runs the task on the control node (your machine) instead of the managed host — useful for API calls, local commands."},
+  {q:"Which module is the cross-platform package manager abstraction?",opts:["yum","apt","pip","package"],ans:3,exp:"The package module automatically uses the appropriate package manager (yum, apt, etc.) based on the OS. Preferred for cross-platform playbooks."},
+  {q:"What is the AWX/Ansible Automation Platform used for?",opts:["Writing playbooks","GUI + RBAC + scheduling for enterprise Ansible","Encrypting secrets","Dynamic inventory only"],ans:1,exp:"AWX (upstream of Red Hat AAP) provides a web UI, REST API, RBAC, scheduling, credential management, and audit logging for enterprise teams."},
+  {q:"What does the --check flag do when running a playbook?",opts:["Syntax check only","Dry run — shows changes without applying them","Check vault password","Validate inventory"],ans:1,exp:"--check is a dry run mode. It shows what WOULD change without actually making any changes. Combine with --diff to see exact diffs."},
+  {q:"Which inventory plugin is used for AWS EC2 dynamic inventory?",opts:["amazon.aws.ec2","aws.inventory.ec2","amazon.aws.aws_ec2","community.aws.ec2_dynamic"],ans:2,exp:"The amazon.aws.aws_ec2 inventory plugin dynamically discovers EC2 instances using tags, regions, and filters."},
+  {q:"How do you run a task only on one host even when targeting many?",opts:["serial: 1","run_once: true","delegate_to: first","throttle: 1"],ans:1,exp:"run_once: true runs the task on exactly one host (the first in the batch). Useful for DB migrations, one-time setup tasks."},
+  {q:"Which Jinja2 filter converts a value to its default if undefined?",opts:["| fallback","| default","| if_none","| coalesce"],ans:1,exp:"The default filter: {{ variable | default('fallback_value') }} — returns fallback_value if variable is undefined."},
+  {q:"What block structure provides try-catch-finally in Ansible?",opts:["try/except/finally","block/rescue/always","attempt/catch/end","play/task/handler"],ans:1,exp:"block: (try), rescue: (catch on failure), always: (always runs) — the Ansible error handling triad."},
+  {q:"Which flag limits playbook execution to hosts matching a pattern?",opts:["--hosts","--limit","--group","--target"],ans:1,exp:"--limit (or -l) restricts execution to hosts or groups matching the pattern: ansible-playbook site.yml --limit webservers"}
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentLesson = 0;
+let completedLessons = new Set();
+let quizAnswers = {};
+let quizCorrect = 0;
+
+// ============================================================
+// RENDER LESSONS
+// ============================================================
+function renderLesson(id) {
+  const l = lessons[id];
+  const heroBlock = document.getElementById('hero-block');
+  heroBlock.style.display = id === 0 ? 'block' : 'none';
+
+  var prevBtn = id > 0 ? '<button class="btn btn-outline" onclick="showLesson(' + (id-1) + ')">← Previous</button>' : '';
+  var nextLabel = id < lessons.length - 1 ? 'Next Lesson →' : '🎓 Complete Course';
+  document.getElementById('lesson-area').innerHTML =
+    '<div class="lesson-header">' +
+      '<div class="lesson-eyebrow">' + l.eyebrow + '</div>' +
+      '<div class="lesson-title">' + l.title + '</div>' +
+      '<div class="lesson-desc">' + l.desc + '</div>' +
+    '</div>' +
+    l.content +
+    '<div class="lesson-nav">' +
+      prevBtn +
+      '<button class="btn btn-primary" onclick="completeLesson(' + id + ')">' + nextLabel + '</button>' +
+    '</div>';
+}
+
+function showLesson(id) {
+  currentLesson = id;
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  const sitem = document.getElementById(`sitem-${id}`);
+  if(sitem) sitem.classList.add('active');
+  renderLesson(id);
+  document.querySelector('.main-content').scrollTop = 0;
+}
+
+function completeLesson(id) {
+  completedLessons.add(id);
+  updateProgress();
+  const sitem = document.getElementById(`sitem-${id}`);
+  if(sitem && !sitem.classList.contains('active')) sitem.classList.add('done');
+  if(id < lessons.length - 1) showLesson(id + 1);
+}
+
+function updateProgress() {
+  const pct = Math.round((completedLessons.size / lessons.length) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${completedLessons.size} / ${lessons.length} lessons`;
+}
+
+// ============================================================
+// RENDER SCENARIOS
+// ============================================================
+function renderScenario(id) {
+  const s = scenarios[id];
+  return `
+    <div class="scenario-card" id="scenario-card-${id}">
+      <div class="scenario-header">
+        <div class="scenario-num">${s.num}</div>
+        <div class="scenario-meta">
+          <div class="scenario-title">${s.title}</div>
+          <div class="scenario-tags">
+            ${s.tags.map(t=>`<span class="stag ${t.c}">${t.l}</span>`).join('')}
+            ${s.keyModules.map(m=>`<span class="stag stag-infra">${m}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="scenario-body">
+        <div class="problem"><strong>🎯 Business Problem</strong>${s.problem}</div>
+        <div class="scenario-section-label">Playbook Solution</div>
+        <div class="code-block"><pre style="margin:0;white-space:pre-wrap;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#E2E8F0;">${escapeHtml(s.code)}</pre></div>
+        <div class="info-box info-success">
+          <div class="ib-icon">💡</div>
+          <div class="ib-body"><strong>Production Tip</strong> ${s.tip}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function showScenario(id) {
+  var area = document.getElementById('scenario-area');
+  if (!area) return;
+  if (area.innerHTML.trim() === '') {
+    area.innerHTML = scenarios.map(function(_, i) { return renderScenario(i); }).join('');
+  }
+  var card = document.getElementById('scenario-card-' + id);
+  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('#sidebar-scenarios .sidebar-item').forEach(function(el, i) {
+    el.classList.toggle('active', i === id);
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ============================================================
+// RENDER QUIZ
+// ============================================================
+function renderQuiz() {
+  const area = document.getElementById('quiz-area');
+  area.innerHTML = quizQuestions.map((q, qi) => `
+    <div class="quiz-q" id="quiz-q-${qi}">
+      <div class="q-num">Question ${qi+1} of ${quizQuestions.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="quiz-options">
+        ${q.opts.map((opt, oi) => `
+          <button class="quiz-opt" onclick="answerQuiz(${qi}, ${oi})" id="qopt-${qi}-${oi}">
+            <span class="opt-letter">${'ABCD'[oi]}</span>
+            ${opt}
+          </button>
+        `).join('')}
+      </div>
+      <div class="quiz-result" id="qresult-${qi}"></div>
+    </div>
+  `).join('');
+}
+
+function answerQuiz(qi, oi) {
+  if(quizAnswers[qi] !== undefined) return;
+  quizAnswers[qi] = oi;
+  const q = quizQuestions[qi];
+  const isCorrect = oi === q.ans;
+  if(isCorrect) quizCorrect++;
+
+  const optEl = document.getElementById(`qopt-${qi}-${oi}`);
+  const correctEl = document.getElementById(`qopt-${qi}-${q.ans}`);
+  correctEl.classList.add('correct');
+  if(!isCorrect) optEl.classList.add('wrong');
+
+  const resultEl = document.getElementById(`qresult-${qi}`);
+  resultEl.className = `quiz-result show ${isCorrect ? 'result-correct' : 'result-wrong'}`;
+  resultEl.innerHTML = `<strong>${isCorrect ? '✅ Correct!' : '❌ Incorrect'}</strong> ${q.exp}`;
+
+  document.getElementById('quiz-score').textContent = `${quizCorrect}/${Object.keys(quizAnswers).length}`;
+}
+
+// ============================================================
+// RENDER REFERENCE
+// ============================================================
+function renderReference() {
+  document.getElementById('reference-area').innerHTML = `
+    <div class="ref-grid">
+
+      <div class="ref-card">
+        <div class="ref-card-header">📦 File Modules</div>
+        <div class="ref-card-body">
+          <div class="ref-item"><span class="ri-name">copy</span><span class="ri-desc">Copy static files</span></div>
+          <div class="ref-item"><span class="ri-name">template</span><span class="ri-desc">Jinja2 file deploy</span></div>
+          <div class="ref-item"><span class="ri-name">file</span><span class="ri-desc">Create/delete files & dirs</span></div>
+          <div class="ref-item"><span class="ri-name">fetch</span><span class="ri-desc">Pull files from remote</span></div>
+          <div class="ref-item"><span class="ri-name">lineinfile</span><span class="ri-desc">Manage single lines</span></div>
+          <div class="ref-item"><span class="ri-name">blockinfile</span><span class="ri-desc">Manage text blocks</span></div>
+          <div class="ref-item"><span class="ri-name">stat</span><span class="ri-desc">File existence/checksum</span></div>
+          <div class="ref-item"><span class="ri-name">find</span><span class="ri-desc">Find files by criteria</span></div>
+        </div>
+      </div>
+
+      <div class="ref-card">
+        <div class="ref-card-header">⚙️ System Modules</div>
+        <div class="ref-card-body">
+          <div class="ref-item"><span class="ri-name">package</span><span class="ri-desc">Cross-platform pkg mgr</span></div>
+          <div class="ref-item"><span class="ri-name">service</span><span class="ri-desc">Manage services</span></div>
+          <div class="ref-item"><span class="ri-name">user</span><span class="ri-desc">Manage user accounts</span></div>
+          <div class="ref-item"><span class="ri-name">group</span><span class="ri-desc">Manage groups</span></div>
+          <div class="ref-item"><span class="ri-name">cron</span><span class="ri-desc">Schedule cron jobs</span></div>
+          <div class="ref-item"><span class="ri-name">mount</span><span class="ri-desc">Manage fstab/mounts</span></div>
+          <div class="ref-item"><span class="ri-name">sysctl</span><span class="ri-desc">Kernel parameters</span></div>
+          <div class="ref-item"><span class="ri-name">reboot</span><span class="ri-desc">Reboot + wait</span></div>
+        </div>
+      </div>
+
+      <div class="ref-card">
+        <div class="ref-card-header">☁️ AWS Modules (amazon.aws)</div>
+        <div class="ref-card-body">
+          <div class="ref-item"><span class="ri-name">ec2_instance</span><span class="ri-desc">Launch/manage EC2</span></div>
+          <div class="ref-item"><span class="ri-name">ec2_security_group</span><span class="ri-desc">Security groups</span></div>
+          <div class="ref-item"><span class="ri-name">s3_bucket</span><span class="ri-desc">S3 bucket CRUD</span></div>
+          <div class="ref-item"><span class="ri-name">aws_s3</span><span class="ri-desc">Upload/download S3</span></div>
+          <div class="ref-item"><span class="ri-name">rds_snapshot</span><span class="ri-desc">RDS backup snapshots</span></div>
+          <div class="ref-item"><span class="ri-name">rds_instance</span><span class="ri-desc">Manage RDS instances</span></div>
+          <div class="ref-item"><span class="ri-name">elb_instance</span><span class="ri-desc">ELB registration</span></div>
+          <div class="ref-item"><span class="ri-name">route53</span><span class="ri-desc">DNS record management</span></div>
+        </div>
+      </div>
+
+      <div class="ref-card">
+        <div class="ref-card-header">🔐 Vault Commands</div>
+        <div class="ref-card-body">
+          <div class="ref-item"><span class="ri-name">vault create</span><span class="ri-desc">New encrypted file</span></div>
+          <div class="ref-item"><span class="ri-name">vault encrypt</span><span class="ri-desc">Encrypt existing file</span></div>
+          <div class="ref-item"><span class="ri-name">vault decrypt</span><span class="ri-desc">Decrypt to plaintext</span></div>
+          <div class="ref-item"><span class="ri-name">vault edit</span><span class="ri-desc">Edit encrypted file</span></div>
+          <div class="ref-item"><span class="ri-name">vault view</span><span class="ri-desc">View without saving</span></div>
+          <div class="ref-item"><span class="ri-name">vault rekey</span><span class="ri-desc">Change vault password</span></div>
+          <div class="ref-item"><span class="ri-name">encrypt_string</span><span class="ri-desc">Inline secret</span></div>
+        </div>
+      </div>
+
+      <div class="ref-card">
+        <div class="ref-card-header">🛠 ansible-playbook Flags</div>
+        <div class="ref-card-body">
+          <div class="ref-item"><span class="ri-name">-i INVENTORY</span><span class="ri-desc">Specify inventory</span></div>
+          <div class="ref-item"><span class="ri-name">-e "var=val"</span><span class="ri-desc">Extra vars (highest prio)</span></div>
+          <div class="ref-item"><span class="ri-name">--check</span><span class="ri-desc">Dry run mode</span></div>
+          <div class="ref-item"><span class="ri-name">--diff</span><span class="ri-desc">Show file diffs</span></div>
+          <div class="ref-item"><span class="ri-name">--limit HOSTS</span><span class="ri-desc">Restrict to host/group</span></div>
+          <div class="ref-item"><span class="ri-name">--tags TAG</span><span class="ri-desc">Run tagged tasks only</span></div>
+          <div class="ref-item"><span class="ri-name">--skip-tags</span><span class="ri-desc">Skip tagged tasks</span></div>
+          <div class="ref-item"><span class="ri-name">--start-at-task</span><span class="ri-desc">Resume from task</span></div>
+          <div class="ref-item"><span class="ri-name">-v/-vvv/-vvvv</span><span class="ri-desc">Verbosity levels</span></div>
+          <div class="ref-item"><span class="ri-name">--syntax-check</span><span class="ri-desc">Validate YAML syntax</span></div>
+        </div>
+      </div>
+
+      <div class="ref-card">
+        <div class="ref-card-header">📄 Key Jinja2 Filters</div>
+        <div class="ref-card-body">
+          <div class="ref-item"><span class="ri-name">| default(x)</span><span class="ri-desc">Default if undefined</span></div>
+          <div class="ref-item"><span class="ri-name">| upper/lower</span><span class="ri-desc">Case conversion</span></div>
+          <div class="ref-item"><span class="ri-name">| join(',')</span><span class="ri-desc">Join list to string</span></div>
+          <div class="ref-item"><span class="ri-name">| to_json</span><span class="ri-desc">Serialize to JSON</span></div>
+          <div class="ref-item"><span class="ri-name">| from_json</span><span class="ri-desc">Parse JSON string</span></div>
+          <div class="ref-item"><span class="ri-name">| b64encode</span><span class="ri-desc">Base64 encode</span></div>
+          <div class="ref-item"><span class="ri-name">| password_hash</span><span class="ri-desc">Hash for shadow</span></div>
+          <div class="ref-item"><span class="ri-name">| regex_replace</span><span class="ri-desc">Regex substitution</span></div>
+          <div class="ref-item"><span class="ri-name">| select</span><span class="ri-desc">Filter list items</span></div>
+          <div class="ref-item"><span class="ri-name">| map(attribute)</span><span class="ri-desc">Extract attribute</span></div>
+        </div>
+      </div>
+
+      <div class="ref-card">
+        <div class="ref-card-header">⚡ Magic Variables</div>
+        <div class="ref-card-body">
+          <div class="ref-item"><span class="ri-name">inventory_hostname</span><span class="ri-desc">Current host name</span></div>
+          <div class="ref-item"><span class="ri-name">ansible_host</span><span class="ri-desc">IP/DNS of host</span></div>
+          <div class="ref-item"><span class="ri-name">hostvars</span><span class="ri-desc">All hosts' variables</span></div>
+          <div class="ref-item"><span class="ri-name">groups</span><span class="ri-desc">All inventory groups</span></div>
+          <div class="ref-item"><span class="ri-name">group_names</span><span class="ri-desc">Groups for this host</span></div>
+          <div class="ref-item"><span class="ri-name">ansible_facts</span><span class="ri-desc">System facts dict</span></div>
+          <div class="ref-item"><span class="ri-name">ansible_play_hosts</span><span class="ri-desc">Active hosts in play</span></div>
+          <div class="ref-item"><span class="ri-name">playbook_dir</span><span class="ri-desc">Directory of playbook</span></div>
+        </div>
+      </div>
+
+      <div class="ref-card">
+        <div class="ref-card-header">🏗 Variable Precedence (Low → High)</div>
+        <div class="ref-card-body">
+          <div class="ref-item"><span class="ri-name">1. role defaults</span><span class="ri-desc">defaults/main.yml</span></div>
+          <div class="ref-item"><span class="ri-name">2. inventory vars</span><span class="ri-desc">hosts.ini inline</span></div>
+          <div class="ref-item"><span class="ri-name">3. group_vars/all</span><span class="ri-desc">All hosts</span></div>
+          <div class="ref-item"><span class="ri-name">4. group_vars/group</span><span class="ri-desc">Specific group</span></div>
+          <div class="ref-item"><span class="ri-name">5. host_vars</span><span class="ri-desc">Specific host</span></div>
+          <div class="ref-item"><span class="ri-name">6. play vars</span><span class="ri-desc">vars: in play</span></div>
+          <div class="ref-item"><span class="ri-name">7. task vars</span><span class="ri-desc">vars: in task</span></div>
+          <div class="ref-item"><span class="ri-name">8. set_fact</span><span class="ri-desc">Runtime facts</span></div>
+          <div class="ref-item"><span class="ri-name">9. --extra-vars</span><span class="ri-desc">👑 Highest priority</span></div>
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(tab) {
+  // Hide all content sections
+  document.querySelectorAll('.tab-section').forEach(function(s) { s.classList.remove('active'); });
+  // Deactivate all header buttons
+  document.querySelectorAll('.htab').forEach(function(b) { b.classList.remove('active'); });
+
+  // Show target section
+  var tabEl = document.getElementById('tab-' + tab);
+  if (tabEl) tabEl.classList.add('active');
+
+  // Activate matching button
+  var btnEl = document.getElementById('htab-' + tab);
+  if (btnEl) btnEl.classList.add('active');
+
+  // Show matching sidebar
+  var sidebars = ['learn','scenarios','quiz','ref'];
+  sidebars.forEach(function(s) {
+    var sbId = 'sidebar-' + s;
+    var el = document.getElementById(sbId);
+    if (el) el.style.display = 'none';
+  });
+  var activeSb = document.getElementById('sidebar-' + (tab === 'reference' ? 'ref' : tab));
+  if (activeSb) activeSb.style.display = 'block';
+
+  // Render content for each tab
+  if (tab === 'scenarios') {
+    var area = document.getElementById('scenario-area');
+    if (area) area.innerHTML = scenarios.map(function(_, i) { return renderScenario(i); }).join('');
+  }
+  if (tab === 'quiz') renderQuiz();
+  if (tab === 'reference') renderReference();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderLesson(0);
+</script>
+</body>
+</html>
